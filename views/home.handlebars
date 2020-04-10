@@ -1,0 +1,16 @@
+<h1>SpotiParty</h1>
+{{#if active.players}}
+<ul class="players_list">
+{{#each players}}
+  <li>{{this.player_name}}</li>
+{{/each}}
+</ul>
+{{/if}}
+<form action="/authorize" method="get">
+    <input type="submit" value="Add Player" 
+         name="add_player_btn" id="add_player_btn" />
+</form>
+<form action="/game" method="get">
+    <input type="submit" value="Start Game" 
+         name="start_game_btn" id="start_game_btn" />
+</form>

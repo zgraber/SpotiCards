@@ -1,0 +1,23 @@
+{
+  "name": "spotiparty",
+  "version": "1.0.0",
+  "description": "A Spotify party game where players guess each other's listening habits",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Zak Graber",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-handlebars": "^4.0.2",
+    "express-session": "^1.17.0",
+    "needle": "^2.3.3",
+    "querystring": "^0.2.0",
+    "request": "^2.88.2",
+    "spotify-web-api-node": "^4.0.0"
+  }
+}
