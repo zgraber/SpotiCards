@@ -35,7 +35,7 @@ function getAnswers(req) {
 function generateUrlId() {
     var id = '';
     var arr = '1234567890abcdefghijklmnopqrstuvwxyz';
-    var len = 7;
+    var len = 8;
     for (var i = len; i > 0; i--) {
         id += arr[Math.floor(Math.random() * arr.length)];
     }
@@ -54,10 +54,19 @@ function generateGameCode() {
 
 router.get('/:id/lobby', function(req, res) {
     let parms = {title:'Lobby', active: {players: false}};
-    if (req.session.players) {
-        parms.active.players = true;
-        parms.players = req.session.players;
-    } 
+    MongoClient.connect(db_url, function(err, db){
+        if (err) return res.next(err);
+        var dbo = db.db('SpotiParty');
+        var collection = dbo.collection('Games');
+        collection.findOne({url_id: req.params.id}, function(err, result) {
+            if (result.players) {
+                parms.active.players = true;
+                parms.players = result.players;
+            } 
+            
+        });
+    })
+    
     res.render('lobby', parms);
 });
 
