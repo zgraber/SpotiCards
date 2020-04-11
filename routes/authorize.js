@@ -79,7 +79,8 @@ router.get('/callback', (req, res, next) => {
                 var player = {
                     access_token: body.access_token,
                     refresh_token: body.refresh_token,
-                    expires_in: body.expires_in
+                    expires_in: body.expires_in,
+                    player_name: 'NO USERNAME'
                 };
 
                 //Request options
