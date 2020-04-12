@@ -53,21 +53,27 @@ function generateGameCode() {
 }
 
 router.get('/:id/lobby', function(req, res) {
+    res.clearCookie('url_id');
+    res.cookie('url_id', req.params.id);
     let parms = {title:'Lobby', active: {players: false}};
     MongoClient.connect(db_url, function(err, db){
         if (err) return res.next(err);
         var dbo = db.db('SpotiParty');
         var collection = dbo.collection('Games');
         collection.findOne({url_id: req.params.id}, function(err, result) {
+            if(err) console.log(err);
+            console.log(result);
             if (result.players) {
                 parms.active.players = true;
                 parms.players = result.players;
-            } 
-            
+            }
+            console.log(parms);
+            res.render('lobby', parms);
         });
-    })
+    });
+    //console.log(parms);
+    //res.render('lobby', parms);
     
-    res.render('lobby', parms);
 });
 
 router.get('/', function (req, res) {
