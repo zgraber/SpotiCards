@@ -90,6 +90,7 @@ router.post('/', function (req, res) {
     game = {
         url_id: url_id,
         game_code: game_code,
+        updated_at: new Date(Date.now()),
         question_ids: [],
         answers: [],
         active_question: -1,

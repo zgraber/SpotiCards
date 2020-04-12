@@ -97,12 +97,12 @@ router.get('/callback', (req, res, next) => {
                 request.get(options, function (error, response, body) {
                     if (!error && response.statusCode === 200) {
                         player.player_name = body.display_name;
-                        // TODO: Insert player into game doc
                         MongoClient.connect(db_url, function(err, db){
                             if (err) return res.next(err);
                             var dbo = db.db('SpotiParty');
                             var collection = dbo.collection('Games');
-                            collection.updateOne({url_id: req.cookies['url_id']}, { $addToSet: {players: player}}, function(err, result) {
+                            collection.updateOne({url_id: req.cookies['url_id']}, { $addToSet: {players: player}, $set: {updated_at: new Date(Date.now())}},
+                            function(err, result) {
                                 if (err) return res.next(err);
                                 console.log("Added player " + player.player_name + " to db");
                             });
