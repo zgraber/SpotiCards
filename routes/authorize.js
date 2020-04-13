@@ -3,7 +3,8 @@ var request = require('request');
 var querystring = require('querystring');
 var needle = require('needle');
 var router = express.Router();
-
+var db_url = process.env.DB_URL;
+var MongoClient = require('mongodb').MongoClient;
 
 const client_id = process.env.CLIENT_ID;
 const client_secret = process.env.CLIENT_SECRET;
@@ -96,16 +97,17 @@ router.get('/callback', (req, res, next) => {
                 request.get(options, function (error, response, body) {
                     if (!error && response.statusCode === 200) {
                         player.player_name = body.display_name;
-                        //If the players array already exists in session data
-                        if (req.session.players) {
-                            req.session.players.push(player);
-                        // If the players array has not been created
-                        } else {
-                            req.session.players = [];
-                            req.session.players.push(player);
-                        }
-                        console.log(req.session.players);
-                        res.redirect('/');
+                        MongoClient.connect(db_url, function(err, db){
+                            if (err) return res.next(err);
+                            var dbo = db.db('SpotiParty');
+                            var collection = dbo.collection('Games');
+                            collection.updateOne({url_id: req.cookies['url_id']}, { $addToSet: {players: player}, $set: {updated_at: new Date(Date.now())}},
+                            function(err, result) {
+                                if (err) return res.next(err);
+                                console.log("Added player " + player.player_name + " to db");
+                            });
+                        });
+                        res.redirect('/game/' + req.cookies['url_id'] + '/lobby');
                     } else {
                         const error = new Error('Invalid Token');
                         error.httpStatusCode = 500;
