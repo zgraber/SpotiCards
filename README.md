@@ -1,1 +1,1 @@
-#SpotiParty
+# SpotiCards
