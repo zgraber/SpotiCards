@@ -58,7 +58,7 @@ router.get('/:id/lobby', function(req, res) {
     let parms = {title:'Lobby', active: {players: false}};
     MongoClient.connect(db_url, function(err, db){
         if (err) return res.next(err);
-        var dbo = db.db('SpotiParty');
+        var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
         collection.findOne({url_id: req.params.id}, function(err, result) {
             if(err) console.log(err);
@@ -101,7 +101,7 @@ router.post('/', function (req, res) {
         if (err) {
             return res.next(err);
         }
-        var dbo = db.db('SpotiParty');
+        var dbo = db.db('SpotiCards');
         dbo.collection("Games").insertOne(game, function (err, res) {
             if (err) return res.next(err);
             console.log("Game with code " + game_code + " added to db");
