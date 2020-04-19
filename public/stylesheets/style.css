@@ -14,6 +14,15 @@
     animation: gradientBG 10s ease infinite;
 }
 
+.error {
+    background-color: #191414;
+    background: linear-gradient(122deg, #12f3b9, #bb2ac4, #0042ff);
+    color: black;
+    height: 100vh;
+    text-align: center;
+    background-sze: 400% 400%;
+}
+
 @-webkit-keyframes gradientBG {
 	0% {
 		background-position: 0% 50%;

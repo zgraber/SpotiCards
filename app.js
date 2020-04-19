@@ -1,5 +1,6 @@
 const express = require('express');
 var path = require('path');
+const createError = require("http-errors");
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
 const request = require('request');
@@ -47,7 +48,7 @@ app.use(function (req, res, next) {
 app.use(function (err, req, res, next) {
     // render the error page
     res.status(err.status || 500);
-    res.send(err);
+    res.render("error", {message: err.message, error:err});
 });
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
