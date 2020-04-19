@@ -63,7 +63,7 @@ router.get('/:id/lobby', function(req, res) {
         collection.findOne({url_id: req.params.id}, function(err, result) {
             if(err) console.log(err);
             console.log(result);
-            if (result.players) {
+            if (result.players.length > 0) {
                 parms.active.players = true;
                 parms.players = result.players;
             }
@@ -71,9 +71,6 @@ router.get('/:id/lobby', function(req, res) {
             res.render('lobby', parms);
         });
     });
-    //console.log(parms);
-    //res.render('lobby', parms);
-    
 });
 
 router.get('/', function (req, res) {
@@ -108,8 +105,7 @@ router.post('/', function (req, res) {
             db.close();
         });
     });
-
-    res.redirect('/game/' + url_id + '/lobby');
+    setTimeout(() => {  res.redirect('/game/' + url_id + '/lobby'); }, 500);
 });
 
 module.exports = router;
