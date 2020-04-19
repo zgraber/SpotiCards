@@ -77,7 +77,8 @@ router.get('/', function (req, res) {
     req.session.question_ids = [2, 0, 1];
     req.session.active_question = 0;
     getAnswers(req);
-    res.send(questions[req.session.question_ids[req.session.active_question]].text);
+    //res.send(questions[req.session.question_ids[req.session.active_question]].text);
+    res.render("question", {question_text: questions[req.session.question_ids[req.session.active_question]].text, question_number: req.session.active_question+1})
 });
 
 //Create a game
