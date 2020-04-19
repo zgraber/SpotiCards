@@ -20,7 +20,7 @@
     color: black;
     height: 100vh;
     text-align: center;
-    background-sze: 400% 400%;
+    background-size: 400% 400%;
 }
 
 @-webkit-keyframes gradientBG {
