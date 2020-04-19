@@ -1,0 +1,104 @@
+body {
+    text-align: center;
+    color: white;
+    font-family: proxima-nova, sans-serif;
+    font-style: normal;
+    height: 100vh;
+    font-weight: 400;
+    margin: 0;
+    width: 100%;
+    background: rgb(2,0,36);
+    background: linear-gradient(122deg, #12f3b9, #bb2ac4, #0042ff);
+	background-size: 400% 400%;
+	-webkit-animation: gradientBG 10s ease infinite;
+    animation: gradientBG 10s ease infinite;
+}
+
+@-webkit-keyframes gradientBG {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+@keyframes gradientBG {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+#title {
+    color: white;
+    font-family: proxima-nova, sans-serif;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 50px;
+}
+
+.btn {
+    position: relative;
+    font-family: proxima-nova, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    background-color: #1DB954;
+    border-color: #1DB954;
+    display: inline-block;
+}
+
+.create-menu {
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    /* bring your own prefixes */
+    transform: translate(-50%, -50%);
+}
+
+.create-form {
+    position: relative;
+    top: 30px;
+    text-align: center;
+    position: relative;
+}
+
+.card {
+    background-color: #191414;
+    color: whitesmoke;
+    position: relative;
+    width: 400px;
+    margin: auto;
+    text-align: left;
+    opacity: 0.85;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.lobby-ctrls {
+    top: 10px;
+    position: relative;
+    margin: auto;
+}
+
+.inline-form {
+    display: inline-block;
+}
+
+.lobby {
+    position: relative;
+    top: 25%;
+}
+
+.list-group-item {
+    background-color: #191414;
+    color: white;
+}
