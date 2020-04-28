@@ -87,9 +87,10 @@ router.get('/:id', function (req, res) {
                 res.redirect('/game/' + req.params.id + '/lobby');
             }
             var question_id = result.active_question;
+            var options = result.options[question_id];
             var question_text = questions[question_id].text;
             console.log(questions);
-            res.render("question", {question_text: question_text, question_number: question_id+1});
+            res.render("question", {question_text: question_text, question_number: question_id+1, options: options});
         });
     });
 });
