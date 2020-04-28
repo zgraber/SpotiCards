@@ -22,8 +22,9 @@
         <input type="submit" value="Add Player" name="add_player_btn" id="add_player_btn" class="btn btn-primary"/>
     </form>
 
-    <form action="/game" class="inline-form">
-        <input type="submit" value="Start Game" id="start_game_btn" class="btn btn-primary"/>
+    <form id="init-game" action="/game/{{id}}/init?_method=PUT" method="POST" class="inline-form">
+      <input type="hidden" name="_method" value="PUT">
+      <input type="submit" value="Start Game" id="start_game_btn" class="btn btn-primary"/>
     </form>
   </div>
 </div>
