@@ -3,6 +3,9 @@ var router = express.Router();
 var SpotifyWebApi = require('spotify-web-api-node');
 var db_url = process.env.DB_URL;
 var MongoClient = require('mongodb').MongoClient;
+var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 
 
 var spotifyApi = new SpotifyWebApi({
@@ -27,6 +30,10 @@ var questions = [{
         points: 100
     }
 ]
+
+io.on("connection", (socket) => {
+    console.log('User connected');
+})
 
 function getAnswers(req) {
 

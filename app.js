@@ -15,6 +15,8 @@ dotenv.config();
 
 //Init app
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 let port = 3000;
 
 app.use(express.static(__dirname + '/public'))
@@ -52,5 +54,8 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render("error", {message: err.message, error:err});
 });
+io.on("connection", (socket) => {
+    console.log('User connected');
+})
 
-app.listen(port, () => console.log(`SpotiCards running at http://localhost:${port}`))
+server.listen(port, () => console.log(`SpotiCards running at http://localhost:${port}`))
