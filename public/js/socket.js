@@ -8,12 +8,23 @@ getQuestionInfo = () => {
             for (let i=0; i < result.options.length; i++) {
                 $('<button></button>', {
                     id: ('option' + i),
-                    class: "btn btn-primary",
-                    text: result.options[i]
+                    class: "btn btn-primary btn-options",
+                    text: result.options[i],
+                    on: {
+                        click: answerSubmit
+                    }
                 }).appendTo('#options');
             }
         }
     });
 }
-$(document).ready(getQuestionInfo);
+
+answerSubmit = (event) => {
+    alert( "Handler for button " + $(event.target).text() + " called." );
+    event.preventDefault();
+};
+
+$(document).ready(()=>{
+    getQuestionInfo();
+});
 var socket = io();
