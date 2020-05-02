@@ -54,8 +54,12 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render("error", {message: err.message, error:err});
 });
+
+//SOCKET.IO
 io.on("connection", (socket) => {
     console.log('User connected');
 })
+
+
 
 server.listen(port, () => console.log(`SpotiCards running at http://localhost:${port}`))

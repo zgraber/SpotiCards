@@ -31,14 +31,12 @@ var questions = [{
     }
 ]
 
-io.on("connection", (socket) => {
-    console.log('User connected');
-})
 
-function getAnswers(req) {
+function getAnswers() {
 
 }
 
+//Generates a 8 length alphanumeric url id
 function generateUrlId() {
     var id = '';
     var arr = '1234567890abcdefghijklmnopqrstuvwxyz';
@@ -49,6 +47,7 @@ function generateUrlId() {
     return id;
 }
 
+//Generates a 4 length alphabet game code 
 function generateGameCode() {
     var code = '';
     var arr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -59,6 +58,7 @@ function generateGameCode() {
     return code;
 }
 
+//Renders the lobby with the players authenticated
 router.get('/:id/lobby', function(req, res) {
     res.clearCookie('url_id');
     res.cookie('url_id', req.params.id);
@@ -80,6 +80,7 @@ router.get('/:id/lobby', function(req, res) {
     });
 });
 
+//Renders the game question view
 router.get('/:id', function (req, res) {
     MongoClient.connect(db_url, function(err, db){
         if (err) return res.next(err);
@@ -102,7 +103,7 @@ router.get('/:id', function (req, res) {
     });
 });
 
-//Create a game
+//Creates a game and adds it to MongoDB
 router.post('/', function (req, res) {
     var url_id = generateUrlId();
     var game_code = generateGameCode();
@@ -128,17 +129,24 @@ router.post('/', function (req, res) {
             db.close();
         });
     });
+    //Timeout to let MongoDB enter game
+    //TODO Figure out a better way to wait on MongoDB
     setTimeout(() => {  res.redirect('/game/' + url_id + '/lobby'); }, 700);
 });
 
+//Initializes the game with random questions and then calculates answers. Then redirects to game question view
 router.put('/:id/init', function (req, res) {
     console.log("Initializing game " + req.params.id);
+
+    //TODO: Write function to get random subset of questions 
     var question_ids = [0, 1, 2];
+    //TODO: Write function to generate options for each question (should usually be player names)
     var options = {
         0: ['Option 1', 'Option 2'],
         1: ['Option 1', 'Option 2'],
         2: ['Option 1', 'Option 2']
     };
+    //TODO: Write function to generate answers of questions
     answers = [0, 1, 0];
 
     MongoClient.connect(db_url, function(err, db) {
@@ -147,6 +155,7 @@ router.put('/:id/init', function (req, res) {
         }
         var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
+        //Set question, options, answers, active question, and updated_at fields in MongoDB
         collection.updateOne({url_id: req.params.id},
         {
             $set: {
@@ -159,6 +168,7 @@ router.put('/:id/init', function (req, res) {
         }, function(err, result) {
             if (err) return res.next(err);
             console.log("Initialized Game " + req.params.id);
+            //Redirect to game view
             res.redirect('/game/' + req.params.id);
         });
     })
