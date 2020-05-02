@@ -3,6 +3,7 @@ var path = require('path');
 const createError = require("http-errors");
 const querystring = require('querystring');
 const cookieParser = require('cookie-parser');
+const methodOverride = require('method-override')
 const request = require('request');
 const exhbs = require('express-handlebars');
 const session = require('express-session');
@@ -14,6 +15,8 @@ dotenv.config();
 
 //Init app
 var app = express();
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
 let port = 3000;
 
 app.use(express.static(__dirname + '/public'))
@@ -25,6 +28,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
+app.use(methodOverride('_method'))
 
 // Set view engine
 app.set('views', path.join(__dirname, 'views'));
@@ -51,4 +55,11 @@ app.use(function (err, req, res, next) {
     res.render("error", {message: err.message, error:err});
 });
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+//SOCKET.IO
+io.on("connection", (socket) => {
+    console.log('User connected');
+})
+
+
+
+server.listen(port, () => console.log(`SpotiCards running at http://localhost:${port}`))

@@ -1,3 +1,4 @@
+<script src="/js/question.js"></script>
 <div class="game">
 <h2>Question {{question_number}}</h2>
 <div class="card">
@@ -5,5 +6,7 @@
         <h5 class="card-title">{{question_text}}</h5>
     </div>
 </div>
-
+{{#each options}}
+<button class="btn btn-primary">{{this}}</button>
+{{/each}}
 </div>
