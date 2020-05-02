@@ -9,6 +9,7 @@ const exhbs = require('express-handlebars');
 const session = require('express-session');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const game_helper = require('./helpers/game-helper');
 
 //Configure Environment variables
 dotenv.config();
@@ -62,8 +63,16 @@ app.use(function (err, req, res, next) {
 io.on("connection", (socket) => {
     console.log('User connected');
     socket.on('disconnect', () => {
-        console.log('user disconnected');
+        console.log('User disconnected');
     });
+    socket.on('answer submit', (data) => {
+        let result = game_helper.verifyAnswer(data.answer, data.url_id, function(result) {
+            console.log("answer correct = " + result);
+            game_helper.incrementQuestion(data.url_id);
+            socket.emit('answer result', result);
+        });
+        
+    })
 })
 
 

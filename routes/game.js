@@ -153,7 +153,7 @@ router.put('/:id/init', function (req, res) {
             //Redirect to game view
             res.redirect('/game/' + req.params.id);
         });
-    })
+    });
 });
 
 //Get JSON data for active question
