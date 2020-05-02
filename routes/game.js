@@ -82,25 +82,7 @@ router.get('/:id/lobby', function(req, res) {
 
 //Renders the game question view
 router.get('/:id', function (req, res) {
-    MongoClient.connect(db_url, function(err, db){
-        if (err) return res.next(err);
-        var dbo = db.db('SpotiCards');
-        var collection = dbo.collection('Games');
-        collection.findOne({url_id: req.params.id}, function(err, result) {
-            if(err) res.next(err);
-            console.log(result);
-            //If the game hasn't been initialized, redirect to lobby
-            if (result.active_question === -1 /*|| result.players.length < 1*/) {
-                console.log('Game not initalized');
-                res.redirect('/game/' + req.params.id + '/lobby');
-            }
-            var question_id = result.active_question;
-            var options = result.options[question_id];
-            var question_text = questions[question_id].text;
-            console.log(questions);
-            res.render("question", {question_text: question_text, question_number: question_id+1, options: options});
-        });
-    });
+    res.render("question");
 });
 
 //Creates a game and adds it to MongoDB
@@ -173,5 +155,27 @@ router.put('/:id/init', function (req, res) {
         });
     })
 });
+
+//Get JSON data for active question
+router.get('/:id/question', (req, res) => {
+    MongoClient.connect(db_url, function(err, db){
+        if (err) return res.next(err);
+        var dbo = db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({url_id: req.params.id}, function(err, result) {
+            if(err) res.next(err);
+            console.log(result);
+            //If the game hasn't been initialized, redirect to lobby
+            if (result.active_question === -1 /*|| result.players.length < 1*/) {
+                console.log('Game not initalized');
+                res.redirect('/game/' + req.params.id + '/lobby');
+            }
+            var question_id = result.active_question;
+            var options = result.options[question_id];
+            var question_text = questions[question_id].text;
+            res.json({question_text: question_text, question_number: question_id+1, options: options});
+        });
+    });
+})
 
 module.exports = router;

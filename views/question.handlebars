@@ -1,12 +1,12 @@
-<script src="/js/question.js"></script>
+<script src="/js/socket.js"></script>
 <div class="game">
-<h2>Question {{question_number}}</h2>
+<h2 id="question-header">Question </h2>
 <div class="card">
     <div class="card-body">
-        <h5 class="card-title">{{question_text}}</h5>
+        <h5 class="card-title" id="question-text">Question Loading...</h5>
     </div>
 </div>
-{{#each options}}
-<button class="btn btn-primary">{{this}}</button>
-{{/each}}
+<div id="options" class="options-field">
+    <!--Buttons will be generated here-->
+</div>
 </div>
