@@ -5,8 +5,6 @@ var db_url = process.env.DB_URL;
 var MongoClient = require('mongodb').MongoClient;
 var app = express();
 var server = require('http').Server(app);
-var io = require('socket.io')(server);
-
 
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
@@ -90,6 +88,7 @@ router.post('/', function (req, res) {
     var url_id = generateUrlId();
     var game_code = generateGameCode();
     game = {
+        game_state: 'created',
         url_id: url_id,
         game_code: game_code,
         updated_at: new Date(Date.now()),
@@ -141,6 +140,7 @@ router.put('/:id/init', function (req, res) {
         collection.updateOne({url_id: req.params.id},
         {
             $set: {
+                game_state: "active",
                 question_ids: question_ids,
                 options: options,
                 answers: answers,
@@ -166,7 +166,7 @@ router.get('/:id/question', (req, res) => {
             if(err) res.next(err);
             console.log(result);
             //If the game hasn't been initialized, redirect to lobby
-            if (result.active_question === -1 /*|| result.players.length < 1*/) {
+            if (result.game_state !== 'active' /*|| result.players.length < 1*/) {
                 console.log('Game not initalized');
                 res.redirect('/game/' + req.params.id + '/lobby');
             }
