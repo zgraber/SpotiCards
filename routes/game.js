@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var SpotifyWebApi = require('spotify-web-api-node');
+const game_helper = require('../helpers/game-helper');
 var db_url = process.env.DB_URL;
 var MongoClient = require('mongodb').MongoClient;
 var app = express();
@@ -121,14 +122,16 @@ router.put('/:id/init', function (req, res) {
 
     //TODO: Write function to get random subset of questions 
     var question_ids = [0, 1, 2];
-    //TODO: Write function to generate options for each question (should usually be player names)
+    
+
     var options = {
         0: ['Option 1', 'Option 2'],
         1: ['Option 1', 'Option 2'],
-        2: ['Option 1', 'Option 2']
-    };
+        2: ['Option 1', 'Option 2'],
+    }
+    
     //TODO: Write function to generate answers of questions
-    answers = [0, 1, 0];
+    answers = [0, 0, 0];
 
     MongoClient.connect(db_url, function(err, db) {
         if (err) {

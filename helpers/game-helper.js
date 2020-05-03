@@ -49,5 +49,29 @@ function incrementQuestion(url_id) {
     })
 }
 
+function getPlayerNames(url_id) {
+    MongoClient.connect(process.env.DB_URL, function(err, db){
+        if (err){
+            console.log("Something went wrong!");
+            return ([]);
+        }
+        var dbo = db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({url_id: url_id}, function(err, result) {
+            if(err || result === null) {
+                console.log("Could not find game!");
+                return ([]);
+            }
+            let playerNames = [];
+            result.players.forEach((playerObj) => {
+                playerNames.push(playerObj.player_name);
+            })
+            console.log(playerNames);
+            return (playerNames);
+        });
+    });
+}
+
 exports.verifyAnswer = verifyAnswer;
 exports.incrementQuestion = incrementQuestion;
+exports.getPlayerNames = getPlayerNames;
