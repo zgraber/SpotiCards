@@ -117,17 +117,18 @@ router.post('/', function (req, res) {
 });
 
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
-router.put('/:id/init', function (req, res) {
+router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
 
     //TODO: Write function to get random subset of questions 
     var question_ids = [0, 1, 2];
     
-
+    let playerNames = await game_helper.getPlayerNames(req.params.id);
+    console.log(playerNames);
     var options = {
-        0: ['Option 1', 'Option 2'],
-        1: ['Option 1', 'Option 2'],
-        2: ['Option 1', 'Option 2'],
+        0: playerNames,
+        1: playerNames,
+        2: playerNames,
     }
     
     //TODO: Write function to generate answers of questions
