@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+var assert = require('assert');
 var SpotifyWebApi = require('spotify-web-api-node');
 const game_helper = require('../helpers/game-helper');
 var db_url = process.env.DB_URL;
@@ -58,16 +59,24 @@ function generateGameCode() {
 }
 
 //Renders the lobby with the players authenticated
-router.get('/:id/lobby', function(req, res) {
+router.get('/:id/lobby', function (req, res) {
     res.clearCookie('url_id');
     res.cookie('url_id', req.params.id);
-    let parms = {title:'Lobby', active: {players: false}, id: req.params.id};
-    MongoClient.connect(db_url, function(err, db){
+    let parms = {
+        title: 'Lobby',
+        active: {
+            players: false
+        },
+        id: req.params.id
+    };
+    MongoClient.connect(db_url, function (err, db) {
         if (err) return res.next(err);
         var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
-        collection.findOne({url_id: req.params.id}, function(err, result) {
-            if(err) console.log(err);
+        collection.findOne({
+            url_id: req.params.id
+        }, function (err, result) {
+            if (err) console.log(err);
             console.log(result);
             if (result.players.length > 0) {
                 parms.active.players = true;
@@ -85,7 +94,7 @@ router.get('/:id', function (req, res) {
 });
 
 //Creates a game and adds it to MongoDB
-router.post('/', function (req, res) {
+router.post('/', async function (req, res, next) {
     var url_id = generateUrlId();
     var game_code = generateGameCode();
     game = {
@@ -99,21 +108,24 @@ router.post('/', function (req, res) {
         active_question: -1,
         players: []
     };
-
-    MongoClient.connect(db_url, function (err, db) {
-        if (err) {
-            return res.next(err);
-        }
-        var dbo = db.db('SpotiCards');
-        dbo.collection("Games").insertOne(game, function (err, res) {
-            if (err) return res.next(err);
-            console.log("Game with code " + game_code + " added to db");
-            db.close();
-        });
-    });
+    let client;
+    try {
+        client = await MongoClient.connect(db_url);
+        const db = client.db("SpotiCards");
+        let r = await db.collection("Games").insertOne(game);
+        assert.equal(1, r.insertedCount);
+        console.log("Game with code " + game_code + " added to db");
+        client.close();
+        res.redirect('/game/' + url_id + '/lobby');
+    } catch (err) {
+        console.log("ERROR: " + err);
+        return next(err);
+    }
     //Timeout to let MongoDB enter game
     //TODO Figure out a better way to wait on MongoDB
-    setTimeout(() => {  res.redirect('/game/' + url_id + '/lobby'); }, 700);
+    /*setTimeout(() => {
+        res.redirect('/game/' + url_id + '/lobby');
+    }, 700);*/
 });
 
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
@@ -122,7 +134,7 @@ router.put('/:id/init', async function (req, res) {
 
     //TODO: Write function to get random subset of questions 
     var question_ids = [0, 1, 2];
-    
+
     let playerNames = await game_helper.getPlayerNames(req.params.id);
     console.log(playerNames);
     var options = {
@@ -130,19 +142,20 @@ router.put('/:id/init', async function (req, res) {
         1: playerNames,
         2: playerNames,
     }
-    
+
     //TODO: Write function to generate answers of questions
     answers = [0, 0, 0];
 
-    MongoClient.connect(db_url, function(err, db) {
+    MongoClient.connect(db_url, function (err, db) {
         if (err) {
             return res.next(err);
         }
         var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
         //Set question, options, answers, active question, and updated_at fields in MongoDB
-        collection.updateOne({url_id: req.params.id},
-        {
+        collection.updateOne({
+            url_id: req.params.id
+        }, {
             $set: {
                 game_state: "active",
                 question_ids: question_ids,
@@ -151,7 +164,7 @@ router.put('/:id/init', async function (req, res) {
                 active_question: 0,
                 updated_at: new Date(Date.now())
             }
-        }, function(err, result) {
+        }, function (err, result) {
             if (err) return res.next(err);
             console.log("Initialized Game " + req.params.id);
             //Redirect to game view
@@ -162,22 +175,28 @@ router.put('/:id/init', async function (req, res) {
 
 //Get JSON data for active question
 router.get('/:id/question', (req, res) => {
-    MongoClient.connect(db_url, function(err, db){
+    MongoClient.connect(db_url, function (err, db) {
         if (err) return res.next(err);
         var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
-        collection.findOne({url_id: req.params.id}, function(err, result) {
-            if(err) res.next(err);
+        collection.findOne({
+            url_id: req.params.id
+        }, function (err, result) {
+            if (err) res.next(err);
             console.log(result);
             //If the game hasn't been initialized, redirect to lobby
-            if (result.game_state !== 'active' /*|| result.players.length < 1*/) {
+            if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
                 console.log('Game not initalized');
                 res.redirect('/game/' + req.params.id + '/lobby');
             }
             var question_id = result.active_question;
             var options = result.options[question_id];
             var question_text = questions[question_id].text;
-            res.json({question_text: question_text, question_number: question_id+1, options: options});
+            res.json({
+                question_text: question_text,
+                question_number: question_id + 1,
+                options: options
+            });
         });
     });
 })
