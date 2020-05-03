@@ -121,11 +121,6 @@ router.post('/', async function (req, res, next) {
         console.log("ERROR: " + err);
         return next(err);
     }
-    //Timeout to let MongoDB enter game
-    //TODO Figure out a better way to wait on MongoDB
-    /*setTimeout(() => {
-        res.redirect('/game/' + url_id + '/lobby');
-    }, 700);*/
 });
 
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
