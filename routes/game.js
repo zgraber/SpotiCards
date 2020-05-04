@@ -58,6 +58,28 @@ function generateGameCode() {
     return code;
 }
 
+//Generates a random subarray
+async function getRandomQuestions(arr, size) {
+    return new Promise(function(resolve, reject){
+        var shuffled = arr.slice(0),
+            i = arr.length,
+            min = i - size,
+            temp, index;
+        while (i-- > min) {
+            index = Math.floor((i + 1) * Math.random());
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
+        }
+        let questions = shuffled.slice(min);
+        let questionNums = [];
+        questions.forEach(function(q){
+            questionNums.push(q.question_id);
+        });
+        resolve(questionNums);
+    });
+}
+
 //Renders the lobby with the players authenticated
 router.get('/:id/lobby', function (req, res) {
     res.clearCookie('url_id');
@@ -127,8 +149,8 @@ router.post('/', async function (req, res, next) {
 router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
 
-    //TODO: Write function to get random subset of questions 
-    var question_ids = [0, 1, 2];
+    let questionAmount = 3;
+    var question_ids = await getRandomQuestions(questions, questionAmount);
 
     let playerNames = await game_helper.getPlayerNames(req.params.id);
     console.log(playerNames);
@@ -184,12 +206,12 @@ router.get('/:id/question', (req, res) => {
                 console.log('Game not initalized');
                 res.redirect('/game/' + req.params.id + '/lobby');
             }
-            var question_id = result.active_question;
+            var question_id = result.question_ids[result.active_question];
             var options = result.options[question_id];
             var question_text = questions[question_id].text;
             res.json({
                 question_text: question_text,
-                question_number: question_id + 1,
+                question_number: result.active_question + 1,
                 options: options
             });
         });
