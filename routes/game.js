@@ -7,7 +7,6 @@ const question_helper = require('../helpers/questions');
 var db_url = process.env.DB_URL;
 var MongoClient = require('mongodb').MongoClient;
 var app = express();
-var server = require('http').Server(app);
 
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
@@ -15,7 +14,8 @@ var spotifyApi = new SpotifyWebApi({
     redirectUri: process.env.REDIRECT_URI
 });
 
-var questions = [{
+var questions = [
+    {
         question_id: 0,
         text: "Which player listens to the most danceable music?",
         points: 100
@@ -30,12 +30,7 @@ var questions = [{
         text: "Which player listens to more acoustic music?",
         points: 100
     }
-]
-
-
-function getAnswers() {
-
-}
+];
 
 //Generates a 8 length alphanumeric url id
 function generateUrlId() {
@@ -151,12 +146,11 @@ router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
 
     let questionAmount = 3;
-    var question_ids = await getRandomQuestions(questions, questionAmount);
+    let question_ids = await getRandomQuestions(questions, questionAmount);
     
-    var options = await question_helper.getOptions(question_ids, req.params.id);
+    let options = await question_helper.getOptions(question_ids, req.params.id);
 
-    //TODO: Write function to generate answers of questions
-    answers = [0, 0, 0];
+    let answers = await question_helper.getAnswers(question_ids, req.params.id);
 
     MongoClient.connect(db_url, function (err, db) {
         if (err) {

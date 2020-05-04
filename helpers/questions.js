@@ -27,6 +27,25 @@ async function getOptions(question_ids, url_id) {
     });
 }
 
+async function getAnswers(question_ids, url_id) {
+    return new Promise(async function(resolve, reject) {
+        let answers = [];
+        //This is scaling for different options for questions
+        for (let i = 0; i < question_ids.length; i++) {
+            if (question_ids[i] === 0) {
+                answers.push(0);
+            } else if (question_ids[i] === 1) {
+                answers.push(1);
+            } else if (question_ids[i] === 2) {
+                answers.push(0);
+            } else {
+                reject(new Error("Question not found"));
+            }
+        }
+        resolve(answers);
+    });
+}
+
 //Will get the average "trait" of the player's top 50 tracks
 function getAverageTrait(trait, player) {
     //Request options
@@ -52,3 +71,4 @@ function getAverageTrait(trait, player) {
 }
 
 exports.getOptions = getOptions;
+exports.getAnswers = getAnswers;
