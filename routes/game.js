@@ -3,6 +3,7 @@ var router = express.Router();
 var assert = require('assert');
 var SpotifyWebApi = require('spotify-web-api-node');
 const game_helper = require('../helpers/game-helper');
+const question_helper = require('../helpers/questions');
 var db_url = process.env.DB_URL;
 var MongoClient = require('mongodb').MongoClient;
 var app = express();
@@ -99,7 +100,7 @@ router.get('/:id/lobby', function (req, res) {
             url_id: req.params.id
         }, function (err, result) {
             if (err) console.log(err);
-            console.log(result);
+            //console.log(result);
             if (result.players.length > 0) {
                 parms.active.players = true;
                 parms.players = result.players;
@@ -151,14 +152,8 @@ router.put('/:id/init', async function (req, res) {
 
     let questionAmount = 3;
     var question_ids = await getRandomQuestions(questions, questionAmount);
-
-    let playerNames = await game_helper.getPlayerNames(req.params.id);
-    console.log(playerNames);
-    var options = {
-        0: playerNames,
-        1: playerNames,
-        2: playerNames,
-    }
+    
+    var options = await question_helper.getOptions(question_ids, req.params.id);
 
     //TODO: Write function to generate answers of questions
     answers = [0, 0, 0];
@@ -200,7 +195,7 @@ router.get('/:id/question', (req, res) => {
             url_id: req.params.id
         }, function (err, result) {
             if (err) res.next(err);
-            console.log(result);
+            //console.log(result);
             //If the game hasn't been initialized, redirect to lobby
             if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
                 console.log('Game not initalized');

@@ -1,10 +1,31 @@
 var SpotifyWebApi = require('spotify-web-api-node');
+const game_helper = require('../helpers/game-helper');
 
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     redirectUri: process.env.REDIRECT_URI
 });
+
+async function getOptions(question_ids, url_id) {
+    return new Promise(async function(resolve, reject) {
+        let options = {};
+        //This is scaling for different options for questions
+        for (let i = 0; i < question_ids.length; i++) {
+            if (question_ids[i] === 0) {
+                options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 1) {
+                options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 2) {
+                options[i] = await game_helper.getPlayerNames(url_id);
+            } else {
+                reject(new Error("Question not found"));
+            }
+        }
+        console.log('OPTIONS:' + JSON.stringify(options));
+        resolve(options);
+    });
+}
 
 //Will get the average "trait" of the player's top 50 tracks
 function getAverageTrait(trait, player) {
@@ -29,3 +50,5 @@ function getAverageTrait(trait, player) {
         }
     });
 }
+
+exports.getOptions = getOptions;

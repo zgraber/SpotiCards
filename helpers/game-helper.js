@@ -74,7 +74,6 @@ async function getPlayerNames(url_id) {
                 result.players.forEach((playerObj) => {
                     playerNames.push(playerObj.player_name);
                 })
-                console.log(playerNames);
                 resolve(playerNames);
             });
         });
