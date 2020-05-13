@@ -3,10 +3,10 @@ var router = express.Router();
 var assert = require('assert');
 var SpotifyWebApi = require('spotify-web-api-node');
 const game_helper = require('../helpers/game-helper');
+const question_helper = require('../helpers/questions');
 var db_url = process.env.DB_URL;
 var MongoClient = require('mongodb').MongoClient;
 var app = express();
-var server = require('http').Server(app);
 
 var spotifyApi = new SpotifyWebApi({
     clientId: process.env.CLIENT_ID,
@@ -14,7 +14,8 @@ var spotifyApi = new SpotifyWebApi({
     redirectUri: process.env.REDIRECT_URI
 });
 
-var questions = [{
+var questions = [
+    {
         question_id: 0,
         text: "Which player listens to the most danceable music?",
         points: 100
@@ -29,12 +30,7 @@ var questions = [{
         text: "Which player listens to more acoustic music?",
         points: 100
     }
-]
-
-
-function getAnswers() {
-
-}
+];
 
 //Generates a 8 length alphanumeric url id
 function generateUrlId() {
@@ -58,6 +54,28 @@ function generateGameCode() {
     return code;
 }
 
+//Generates a random subarray
+async function getRandomQuestions(arr, size) {
+    return new Promise(function(resolve, reject){
+        var shuffled = arr.slice(0),
+            i = arr.length,
+            min = i - size,
+            temp, index;
+        while (i-- > min) {
+            index = Math.floor((i + 1) * Math.random());
+            temp = shuffled[index];
+            shuffled[index] = shuffled[i];
+            shuffled[i] = temp;
+        }
+        let questions = shuffled.slice(min);
+        let questionNums = [];
+        questions.forEach(function(q){
+            questionNums.push(q.question_id);
+        });
+        resolve(questionNums);
+    });
+}
+
 //Renders the lobby with the players authenticated
 router.get('/:id/lobby', function (req, res) {
     res.clearCookie('url_id');
@@ -77,7 +95,7 @@ router.get('/:id/lobby', function (req, res) {
             url_id: req.params.id
         }, function (err, result) {
             if (err) console.log(err);
-            console.log(result);
+            //console.log(result);
             if (result.players.length > 0) {
                 parms.active.players = true;
                 parms.players = result.players;
@@ -127,19 +145,12 @@ router.post('/', async function (req, res, next) {
 router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
 
-    //TODO: Write function to get random subset of questions 
-    var question_ids = [0, 1, 2];
+    let questionAmount = 3;
+    let question_ids = await getRandomQuestions(questions, questionAmount);
+    
+    let options = await question_helper.getOptions(question_ids, req.params.id);
 
-    let playerNames = await game_helper.getPlayerNames(req.params.id);
-    console.log(playerNames);
-    var options = {
-        0: playerNames,
-        1: playerNames,
-        2: playerNames,
-    }
-
-    //TODO: Write function to generate answers of questions
-    answers = [0, 0, 0];
+    let answers = await question_helper.getAnswers(question_ids, req.params.id);
 
     MongoClient.connect(db_url, function (err, db) {
         if (err) {
@@ -178,18 +189,18 @@ router.get('/:id/question', (req, res) => {
             url_id: req.params.id
         }, function (err, result) {
             if (err) res.next(err);
-            console.log(result);
+            //console.log(result);
             //If the game hasn't been initialized, redirect to lobby
             if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
                 console.log('Game not initalized');
                 res.redirect('/game/' + req.params.id + '/lobby');
             }
-            var question_id = result.active_question;
+            var question_id = result.question_ids[result.active_question];
             var options = result.options[question_id];
             var question_text = questions[question_id].text;
             res.json({
                 question_text: question_text,
-                question_number: question_id + 1,
+                question_number: result.active_question + 1,
                 options: options
             });
         });
