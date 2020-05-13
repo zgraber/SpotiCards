@@ -81,7 +81,8 @@ router.get('/callback', (req, res, next) => {
                     access_token: body.access_token,
                     refresh_token: body.refresh_token,
                     expires_in: body.expires_in,
-                    player_name: 'NO USERNAME'
+                    player_name: 'NO USERNAME',
+                    stats: {}
                 };
 
                 //Request options
