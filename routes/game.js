@@ -17,19 +17,40 @@ var spotifyApi = new SpotifyWebApi({
 var questions = [
     {
         question_id: 0,
-        text: "Which player listens to the most danceable music?",
+        text: "Which player listens to more danceable music?",
         points: 100
     },
     {
         question_id: 1,
-        text: "Which player listens to the happiest music?",
+        text: "Which player listens to  more happy music?",
         points: 200
     },
     {
         question_id: 2,
         text: "Which player listens to more acoustic music?",
+        points: 200
+    },
+    {
+        question_id: 3,
+        text: "Which player listens to more energetic music?",
         points: 100
+    },
+    {
+        question_id: 4,
+        text: "Which player listens to more instrumental music?",
+        points: 400
+    },
+    {
+        question_id: 5,
+        text: "Which player listens to more louder music?",
+        points: 500
+    },
+    {
+        question_id: 6,
+        text: "Which player listens to the fastest music?",
+        points: 600
     }
+
 ];
 
 //Generates a 8 length alphanumeric url id
@@ -144,10 +165,10 @@ router.post('/', async function (req, res, next) {
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
 router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
-
-    let questionAmount = 3;
+    //TODO: Add game parameters for customization (ex: number of questions)
+    let questionAmount = 5;
     let question_ids = await getRandomQuestions(questions, questionAmount);
-    
+    //TODO: Error catch all of these
     let options = await question_helper.getOptions(question_ids, req.params.id);
 
     let outcome = await question_helper.initPlayers(req.params.id);
@@ -191,14 +212,15 @@ router.get('/:id/question', (req, res) => {
             url_id: req.params.id
         }, function (err, result) {
             if (err) res.next(err);
-            //console.log(result);
+            console.log(result);
             //If the game hasn't been initialized, redirect to lobby
             if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
                 console.log('Game not initalized');
                 res.redirect('/game/' + req.params.id + '/lobby');
             }
             var question_id = result.question_ids[result.active_question];
-            var options = result.options[question_id];
+            var options = result.options[result.active_question];
+            
             var question_text = questions[question_id].text;
             res.json({
                 question_text: question_text,

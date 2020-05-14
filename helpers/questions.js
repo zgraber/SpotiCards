@@ -13,6 +13,14 @@ async function getOptions(question_ids, url_id) {
                 options[i] = await game_helper.getPlayerNames(url_id);
             } else if (question_ids[i] === 2) {
                 options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 3) {
+                options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 4) {
+                options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 5) {
+                options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 6) {
+                options[i] = await game_helper.getPlayerNames(url_id);
             } else {
                 reject(new Error("Question not found"));
             }
@@ -35,11 +43,19 @@ async function getAnswers(question_ids, url_id) {
         //This is scaling for different options for questions
         for (let i = 0; i < question_ids.length; i++) {
             if (question_ids[i] === 0) {
-                answers.push(getMaxIndex(players, 'danceability'))
+                answers.push(getMaxIndex(players, 'danceability'));
             } else if (question_ids[i] === 1) {
-                answers.push(getMaxIndex(players, 'valence'))
+                answers.push(getMaxIndex(players, 'valence'));
             } else if (question_ids[i] === 2) {
                 answers.push(getMaxIndex(players, 'acousticness'));
+            } else if(question_ids[i] === 3) {
+                answers.push(getMaxIndex(players, 'energy'));
+            } else if(question_ids[i] === 4) {
+                answers.push(getMaxIndex(players, 'instrumentalness'));
+            } else if(question_ids[i] === 5) {
+                answers.push(getMaxIndex(players, 'loudness'));
+            } else if(question_ids[i] === 6) {
+                answers.push(getMaxIndex(players, 'tempo'));
             } else {
                 reject(new Error("Question not found"));
             }
