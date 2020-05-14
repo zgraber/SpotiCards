@@ -14,7 +14,7 @@ var spotifyApi = new SpotifyWebApi({
     redirectUri: process.env.REDIRECT_URI
 });
 
-var questions = [
+/*var questions = [
     {
         question_id: 0,
         text: "Which player listens to more danceable music?",
@@ -51,7 +51,7 @@ var questions = [
         points: 600
     }
 
-];
+];*/
 
 //Generates a 8 length alphanumeric url id
 function generateUrlId() {
@@ -76,8 +76,15 @@ function generateGameCode() {
 }
 
 //Generates a random subarray
-async function getRandomQuestions(arr, size) {
-    return new Promise(function(resolve, reject){
+async function getRandomQuestions(size) {
+    return new Promise(async function (resolve, reject) {
+        var client = await MongoClient.connect(db_url);
+        const db = client.db("SpotiCards");
+
+        let arr = [];
+        let r = await db.collection("Questions").find({}).forEach(doc => {
+            arr.push(doc);
+        });
         var shuffled = arr.slice(0),
             i = arr.length,
             min = i - size,
@@ -90,7 +97,7 @@ async function getRandomQuestions(arr, size) {
         }
         let questions = shuffled.slice(min);
         let questionNums = [];
-        questions.forEach(function(q){
+        questions.forEach(function (q) {
             questionNums.push(q.question_id);
         });
         resolve(questionNums);
@@ -165,9 +172,13 @@ router.post('/', async function (req, res, next) {
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
 router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
+
+
+
     //TODO: Add game parameters for customization (ex: number of questions)
     let questionAmount = 5;
-    let question_ids = await getRandomQuestions(questions, questionAmount);
+    let question_ids = await getRandomQuestions(questionAmount);
+
     //TODO: Error catch all of these
     let options = await question_helper.getOptions(question_ids, req.params.id);
 
@@ -210,7 +221,7 @@ router.get('/:id/question', (req, res) => {
         var collection = dbo.collection('Games');
         collection.findOne({
             url_id: req.params.id
-        }, function (err, result) {
+        }, async function (err, result) {
             if (err) res.next(err);
             console.log(result);
             //If the game hasn't been initialized, redirect to lobby
@@ -220,8 +231,12 @@ router.get('/:id/question', (req, res) => {
             }
             var question_id = result.question_ids[result.active_question];
             var options = result.options[result.active_question];
-            
-            var question_text = questions[question_id].text;
+
+            let question = await dbo.collection("Questions").findOne({
+                question_id: question_id
+            });
+            var question_text = question.text;
+
             res.json({
                 question_text: question_text,
                 question_number: result.active_question + 1,
