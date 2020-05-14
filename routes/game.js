@@ -14,45 +14,6 @@ var spotifyApi = new SpotifyWebApi({
     redirectUri: process.env.REDIRECT_URI
 });
 
-/*var questions = [
-    {
-        question_id: 0,
-        text: "Which player listens to more danceable music?",
-        points: 100
-    },
-    {
-        question_id: 1,
-        text: "Which player listens to  more happy music?",
-        points: 200
-    },
-    {
-        question_id: 2,
-        text: "Which player listens to more acoustic music?",
-        points: 200
-    },
-    {
-        question_id: 3,
-        text: "Which player listens to more energetic music?",
-        points: 100
-    },
-    {
-        question_id: 4,
-        text: "Which player listens to more instrumental music?",
-        points: 400
-    },
-    {
-        question_id: 5,
-        text: "Which player listens to more louder music?",
-        points: 500
-    },
-    {
-        question_id: 6,
-        text: "Which player listens to the fastest music?",
-        points: 600
-    }
-
-];*/
-
 //Generates a 8 length alphanumeric url id
 function generateUrlId() {
     var id = '';
