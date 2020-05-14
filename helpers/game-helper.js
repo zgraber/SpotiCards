@@ -30,10 +30,10 @@ function verifyAnswer(answer, url_id, ) {
 }
 
 //TODO: update this so when there are no more questions, it changes state of game
-function incrementQuestion(url_id) {
+function incrementQuestion(url_id, callback) {
     MongoClient.connect(process.env.DB_URL, function (err, db) {
         if (err) {
-            return false;
+            callback(false);
         }
         var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
@@ -48,8 +48,8 @@ function incrementQuestion(url_id) {
                 active_question: 1
             }
         }, function (err, result) {
-            if (err || result === null) return false;
-            return true
+            if (err || result === null) callback(false);
+            callback(true);
         });
     })
 }
