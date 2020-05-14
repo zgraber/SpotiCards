@@ -7,7 +7,9 @@ getQuestionInfo = () => {
         url: url,
         success: (result) => {
             //Add jquery to clear result box
-            $("#result-box").text("")
+            // $("#result-box").text("")
+            // $("#result-box").css("background-color", "");
+
             $("#question-header").text("Question " + result.question_number);
             $("#question-text").text(result.question_text);
             $("#options").empty();
@@ -38,15 +40,15 @@ $(document).ready(()=>{
     socket.on('answer result', (data)=> {
         if(data === true) {
             //alert("CORRECT");
+            $("#result-box").css("background-color", "#1DB954");
             $("#result-box").text("Congratulations!");
         } else {
-            alert("INCORRECT");
+            // alert("INCORRECT");
+            $("#result-box").css("background-color", "#b91d34");
             $("#result-box").text("Incorrect :(");
         }
         
-        sleep(5000).then(() => {
-            getQuestionInfo();
-          })
+        getQuestionInfo();
     });
 });
 

@@ -111,3 +111,15 @@
     background-color: #191414;
     color: white;
 }
+
+#result-box{
+    margin: auto;
+    margin-top: 5%;
+    /* centering text in box */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* end centering text part */
+    width: 5%;
+    height: 5%;
+}
