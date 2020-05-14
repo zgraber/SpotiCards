@@ -1,10 +1,13 @@
 var socket = io();
+var points = 0;
 
 getQuestionInfo = () => {
     url = window.location.href + '/question';
     $.ajax({
         url: url,
         success: (result) => {
+            //Add jquery to clear result box
+            $("#result-box").text("")
             $("#question-header").text("Question " + result.question_number);
             $("#question-text").text(result.question_text);
             $("#options").empty();
@@ -34,11 +37,16 @@ $(document).ready(()=>{
     getQuestionInfo();
     socket.on('answer result', (data)=> {
         if(data === true) {
-            alert("CORRECT");
+            //alert("CORRECT");
+            $("#result-box").text("Congratulations!");
         } else {
             alert("INCORRECT");
+            $("#result-box").text("Incorrect :(");
         }
-        getQuestionInfo();
+        
+        sleep(5000).then(() => {
+            getQuestionInfo();
+          })
     });
 });
 
