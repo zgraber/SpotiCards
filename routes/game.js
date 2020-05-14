@@ -205,6 +205,10 @@ router.get('/:id/question', (req, res) => {
             });
         });
     });
-})
+});
+
+router.get('/:id/game_over', function(req, res) {
+    res.render("end");
+});
 
 module.exports = router;

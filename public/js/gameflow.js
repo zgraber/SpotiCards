@@ -40,5 +40,10 @@ $(document).ready(()=>{
         }
         getQuestionInfo();
     });
+
+    socket.on('game over', () => {
+        url = window.location.href;
+        window.location.href = url + "/game_over";        
+    });
 });
 
