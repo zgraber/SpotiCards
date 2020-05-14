@@ -33,23 +33,30 @@ function verifyAnswer(answer, url_id, ) {
 function incrementQuestion(url_id, callback) {
     MongoClient.connect(process.env.DB_URL, function (err, db) {
         if (err) {
-            callback(false);
+            thow(err);
         }
         var dbo = db.db('SpotiCards');
         var collection = dbo.collection('Games');
-        //increment active question by one and update the updated_at field
-        collection.updateOne({
-            url_id: url_id
-        }, {
-            $set: {
-                updated_at: new Date(Date.now())
-            },
-            $inc: {
-                active_question: 1
+        //Get how many questions there are
+        collection.findOne({url_id: url_id}, function(err, game){
+            let num_questions = game.question_ids.length;
+            if(game.active_question + 1 >= num_questions){
+                callback(false);
             }
-        }, function (err, result) {
-            if (err || result === null) callback(false);
-            callback(true);
+
+            collection.updateOne({
+                url_id: url_id
+            }, {
+                $set: {
+                    updated_at: new Date(Date.now())
+                },
+                $inc: {
+                    active_question: 1
+                }
+            }, function (err, result) {
+                if (err || result === null) throw(err);
+                callback(true);
+            });
         });
     })
 }

@@ -69,7 +69,11 @@ io.on("connection", (socket) => {
         let result = await game_helper.verifyAnswer(data.answer, data.url_id)
         console.log("answer correct = " + result);
         game_helper.incrementQuestion(data.url_id, (res) => {
-            socket.emit('answer result', result);
+            if (res){
+                socket.emit('answer result', result);
+            } else {
+                socket.emit('game over');
+            }
         });
     });
 });
