@@ -150,6 +150,9 @@ router.put('/:id/init', async function (req, res) {
     
     let options = await question_helper.getOptions(question_ids, req.params.id);
 
+    let outcome = await question_helper.initPlayers(req.params.id);
+    console.log(outcome);
+
     let answers = await question_helper.getAnswers(question_ids, req.params.id);
 
     MongoClient.connect(db_url, function (err, db) {
