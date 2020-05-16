@@ -53,6 +53,12 @@
     font-size: 50px;
 }
 
+#game-missing {
+    color:red;
+    text-align: center;
+    font-family: proxima-nova, sans-serif;
+}
+
 #game_code {
     text-transform: uppercase;
     text-align: center;
