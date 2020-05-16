@@ -111,6 +111,12 @@ router.get('/:id', function (req, res) {
     res.render("question");
 });
 
+router.get('/:id/authorize', function(req, res) {
+    res.clearCookie('url_id');
+    res.cookie('url_id', req.params.id);
+    res.redirect('/authorize');
+});
+
 //Creates a game and adds it to MongoDB
 router.post('/', async function (req, res, next) {
     var url_id = generateUrlId();
@@ -203,6 +209,30 @@ router.get('/:id/question', (req, res) => {
                 question_number: result.active_question + 1,
                 options: options
             });
+        });
+    });
+});
+
+//Get game by Game code
+router.get('/', (req, res) => {
+    MongoClient.connect(db_url, function (err, db) {
+        if (err) return res.next(err);
+        var dbo = db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            game_code: req.query.code
+        }, function (err, result) {
+            if (err) res.next(err);
+            if(result){
+                res.json({
+                    found: true,
+                    url_id: result.url_id
+                })
+            } else {
+                res.json({
+                    found: false
+                })
+            }
         });
     });
 });
