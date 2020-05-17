@@ -61,7 +61,22 @@ app.use(function (err, req, res, next) {
 
 //SOCKET.IO
 io.on("connection", (socket) => {
+    let room;
     console.log('User connected');
+
+    socket.on('register screen', (data) => {
+        room = data.game_code;
+        socket.join(room);
+        console.log('Screen view has joined room ' + data.game_code);
+    })
+
+    socket.on('join room', (data)=>{
+        room = data.game_code;
+        socket.join(room);
+        console.log(data.player_name + ' has joined room ' + data.game_code);
+        io.to(room).emit('player join', {player_name: data.player_name});
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });

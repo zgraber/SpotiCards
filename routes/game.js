@@ -255,9 +255,11 @@ router.get('/', (req, res) => {
         }, function (err, result) {
             if (err) res.next(err);
             if(result){
+                res.clearCookie('game_code');
+                res.cookie('game_code', req.query.code);
                 res.json({
                     found: true,
-                    url_id: result.url_id
+                    url_id: result.url_id,
                 })
             } else {
                 res.json({

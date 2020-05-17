@@ -112,6 +112,8 @@ router.get('/callback', (req, res, next) => {
                             });
                         });
                         //res.redirect('/game/' + req.cookies['url_id'] + '/lobby');
+                        res.clearCookie('player_name');
+                        res.cookie('player_name', player.player_name);
                         res.redirect('/join/confirm');
                     } else {
                         const error = new Error('Invalid Token');

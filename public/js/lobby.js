@@ -1,3 +1,5 @@
+var socket = io();
+
 function loadPlayerNames(){
     let id = window.location.pathname.split('/')[2];
     let url = window.location.origin + '/game/' + id + '/players';
@@ -22,4 +24,18 @@ function loadPlayerNames(){
 $(document).ready(()=>{
     $("#player-list").hide();
     loadPlayerNames();
+    socket.emit('register screen',{
+        game_code: $('#game-code').text()
+    });
+    socket.on('player join', (data) => {
+        if($("#no-players").is(":visible")){
+            $('#no-players').hide();
+            $('#player-list').show();
+        }
+        console.log(data.player_name);
+        $('<li></li>', {
+            class: "list-group-item",
+            text: data.player_name,
+        }).appendTo('#player-list');
+    });
 })
