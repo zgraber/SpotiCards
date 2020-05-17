@@ -1,31 +1,26 @@
+<script src="/js/lobby.js"></script>
 <div class="game">
   <div class="game-code-box">
-    <h3>Game Code: {{gameCode}}</h3>
+    <h3>Game Code: </h3>
+    <h3 id="game-code">{{gameCode}}</h3>
   </div>
   <div class="lobby">
-
-
     <h1 id="title">SpotiCards</h1>
 
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Lobby:</h5>
-        {{#if active.players}}
-        <ul class="list-group list-group-flush">
-          {{#each players}}
-          <li class="list-group-item">{{this.player_name}}</li>
-          {{/each}}
-        </ul>
-        {{else}}
-        <p class="card-text">No players joined</p>
-        {{/if}}
+        <ul class="list-group list-group-flush" id="player-list"></ul>
+        <p class="card-text" id="no-players">No players joined</p>
       </div>
     </div>
 
     <div class="lobby-ctrls">
+      <!--
       <form action="/authorize" method="get" class="inline-form">
         <input type="submit" value="Add Player" name="add_player_btn" id="add_player_btn" class="btn btn-primary" />
-      </form>
+      </form> 
+      -->
 
       <form id="init-game" action="/game/{{id}}/init?_method=PUT" method="POST" class="inline-form">
         <input type="hidden" name="_method" value="PUT">

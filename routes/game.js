@@ -119,6 +119,35 @@ router.get('/:id/authorize', function(req, res) {
     res.redirect('/authorize');
 });
 
+//Get player names
+router.get('/:id/players', function(req,res) {
+    MongoClient.connect(db_url, function (err, db) {
+        if (err) return res.next(err);
+        var dbo = db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            url_id: req.params.id
+        }, function (err, result) {
+            if (err) res.next(err);
+            //console.log(result);
+            //If the game hasn't been initialized, redirect to lobby
+            if (result) {
+                player_names = [];
+                for (var i = 0; i < result.players.length; i++) {
+                    player_names.push(result.players[i].player_name);
+                }
+                res.json({
+                    player_names: player_names
+                });
+            } else {
+                res.json({
+                    player_names: []
+                });
+            }
+        });
+    });
+});
+
 //Creates a game and adds it to MongoDB
 router.post('/', async function (req, res, next) {
     var url_id = generateUrlId();
@@ -226,9 +255,11 @@ router.get('/', (req, res) => {
         }, function (err, result) {
             if (err) res.next(err);
             if(result){
+                res.clearCookie('game_code');
+                res.cookie('game_code', req.query.code);
                 res.json({
                     found: true,
-                    url_id: result.url_id
+                    url_id: result.url_id,
                 })
             } else {
                 res.json({
