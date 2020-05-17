@@ -37,15 +37,20 @@ function generateGameCode() {
 }
 
 //Generates a random subarray
-async function getRandomQuestions(size) {
+async function getRandomQuestions(size, numPlayers) {
     return new Promise(async function (resolve, reject) {
         var client = await MongoClient.connect(db_url);
         const db = client.db("SpotiCards");
 
+
         let arr = [];
-        let r = await db.collection("Questions").find({}).forEach(doc => {
+        let r = await db.collection("Questions").find({players_req: {$lte: numPlayers}}).forEach(doc => {
             arr.push(doc);
         });
+        //If there are less matching questions than specified size
+        if(arr.length < size) {
+            size = arr.length;
+        }
         var shuffled = arr.slice(0),
             i = arr.length,
             min = i - size,
@@ -133,19 +138,23 @@ router.post('/', async function (req, res, next) {
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
 router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
-
-
+    let client = await MongoClient.connect(process.env.DB_URL);
+    const db = client.db("SpotiCards");
+    let r = await db.collection("Games").findOne({
+        url_id: req.params.id
+    });
+    let numPlayers = r.players.length;
 
     //TODO: Add game parameters for customization (ex: number of questions)
     let questionAmount = 5;
-    let question_ids = await getRandomQuestions(questionAmount);
+    let question_ids = await getRandomQuestions(questionAmount, numPlayers);
 
     //TODO: Error catch all of these
     let outcome = await question_helper.initPlayers(req.params.id);
 
     let options = await question_helper.getOptions(question_ids, req.params.id);
 
-    let answers = await question_helper.getAnswers(question_ids, req.params.id);
+    let answers = await question_helper.getAnswers(question_ids, options, req.params.id);
 
     MongoClient.connect(db_url, function (err, db) {
         if (err) {
@@ -192,11 +201,23 @@ router.get('/:id/question', (req, res) => {
             }
             var question_id = result.question_ids[result.active_question];
             var options = result.options[result.active_question];
+            let players = result.players;
 
             let question = await dbo.collection("Questions").findOne({
                 question_id: question_id
             });
             var question_text = question.text;
+
+            //For top artist questions
+            if(question_id === 7){
+                question_text = question_text.replace('Player1', players[0].player_name);
+            } else if (question_id === 8) {
+                question_text = question_text.replace('Player2', players[1].player_name);
+            } else if (question_id === 9) {
+                question_text = question_text.replace('Player3', players[2].player_name);
+            } else if (question_id === 10) {
+                question_text = question_text.replace('Player4', players[3].player_name);
+            }
 
             res.json({
                 question_text: question_text,

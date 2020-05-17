@@ -4,6 +4,13 @@ const fetch = require('node-fetch');
 
 async function getOptions(question_ids, url_id) {
     return new Promise(async function (resolve, reject) {
+        let client = await MongoClient.connect(process.env.DB_URL);
+        const db = client.db("SpotiCards");
+        let r = db.collection("Games").findOne({
+            url_id: url_id
+        });
+
+        let players = r.players;
         let options = {};
         //This is scaling for different options for questions
         for (let i = 0; i < question_ids.length; i++) {
@@ -21,6 +28,18 @@ async function getOptions(question_ids, url_id) {
                 options[i] = await game_helper.getPlayerNames(url_id);
             } else if (question_ids[i] === 6) {
                 options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 7) {
+                let playerOneStats = await game_helper.getPlayerStats(0,url_id);
+                options[i] = shuffle(playerOneStats.top_artists);
+            } else if (question_ids[i] === 8) {
+                let playerTwoStats = await game_helper.getPlayerStats(1,url_id);
+                options[i] = shuffle(playerTwoStats.top_artists);
+            } else if (question_ids[i] === 9) {
+                let playerThreeStats = await game_helper.getPlayerStats(2,url_id);
+                options[i] = shuffle(playerThreeStats.top_artists);
+            } else if (question_ids[i] === 10) {
+                let playerFourStats = await game_helper.getPlayerStats(3,url_id);
+                options[i] = shuffle(playerFourStats.top_artists);
             } else {
                 reject(new Error("Question not found"));
             }
@@ -30,7 +49,7 @@ async function getOptions(question_ids, url_id) {
     });
 }
 
-async function getAnswers(question_ids, url_id) {
+async function getAnswers(question_ids, options, url_id) {
     return new Promise(async function (resolve, reject) {
         client = await MongoClient.connect(process.env.DB_URL);
         const db = client.db("SpotiCards");
@@ -56,6 +75,18 @@ async function getAnswers(question_ids, url_id) {
                 answers.push(getMaxIndex(players, 'loudness'));
             } else if(question_ids[i] === 6) {
                 answers.push(getMaxIndex(players, 'tempo'));
+            } else if(question_ids[i] === 7) {
+                let topArtist = players[0].stats.top_artists[0];
+                answers.push(options[i].indexOf(topArtist));
+            } else if(question_ids[i] === 8) {
+                let topArtist = players[1].stats.top_artists[0];
+                answers.push(options[i].indexOf(topArtist));
+            } else if(question_ids[i] === 9) {
+                let topArtist = players[2].stats.top_artists[0];
+                answers.push(options[i].indexOf(topArtist));
+            } else if(question_ids[i] === 10) {
+                let topArtist = players[3].stats.top_artists[0];
+                answers.push(options[i].indexOf(topArtist));
             } else {
                 reject(new Error("Question not found"));
             }
@@ -205,6 +236,17 @@ function getMaxIndex(players, feat) {
         }
     }
     return maxIndex;
+}
+
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
 }
 
 exports.getOptions = getOptions;

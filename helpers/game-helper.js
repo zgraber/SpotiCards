@@ -80,6 +80,29 @@ async function getPlayerNames(url_id) {
     })
 }
 
+async function getPlayerStats(index, url_id) {
+    return new Promise(function (resolve, reject) {
+        MongoClient.connect(process.env.DB_URL, function (err, db) {
+            if (err) {
+                console.log("Something went wrong!");
+                reject(err);
+            }
+            var dbo = db.db('SpotiCards');
+            var collection = dbo.collection('Games');
+            collection.findOne({
+                url_id: url_id
+            }, function (err, result) {
+                if (err || result === null) {
+                    console.log("Could not find game!");
+                    reject(err);
+                }
+                resolve(result.players[index].stats);
+            });
+        });
+    });
+}
+
 exports.verifyAnswer = verifyAnswer;
 exports.incrementQuestion = incrementQuestion;
 exports.getPlayerNames = getPlayerNames;
+exports.getPlayerStats = getPlayerStats;
