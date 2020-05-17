@@ -75,10 +75,11 @@ async function initPlayers(url_id) {
             let game = await db.collection("Games").findOne({
                 url_id: url_id
             });
-            console.log(game);
+            //console.log(game);
             let players = game.players;
             for (var i = 0; i < players.length; i++) {
                promises.push(setTopFeats(players[i].access_token, i, url_id));
+               promises.push(setTopArtists(players[i].access_token, i, url_id));
             }
             console.log("DONE INIT");
             Promise.all(promises).then(()=>{
@@ -88,6 +89,37 @@ async function initPlayers(url_id) {
             console.log(err);
             reject(err);
         }
+    });
+}
+
+async function setTopArtists(access_token, index, url_id) {
+    return new Promise(async (resolve, reject) => {
+        //Request options
+        var options = {
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+            }
+        };
+        let response = await fetch('https://api.spotify.com/v1/me/top/artists?limit=4&time_range=long_term', options);
+        let data = await response.json();
+        let topArtists = data.items;
+        let artistNames = [];
+        for(let i = 0; i < topArtists.length; i++) {
+            artistNames.push(topArtists[i].name);
+        }
+
+        let set = {};
+
+        set["players." + index + ".stats.top_artists"] = artistNames;
+
+        client = await MongoClient.connect(process.env.DB_URL);
+        const db = client.db("SpotiCards");
+        db.collection("Games").updateOne({
+            url_id: url_id
+        }, {
+            $set: set
+        });
+        resolve("Success");
     });
 }
 
@@ -112,7 +144,7 @@ async function setTopFeats(access_token, index, url_id) {
         };
 
         //Get all the top 50 songs' ids
-        let response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50', options);
+        let response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=long_term', options);
         let data = await response.json();
         let topSongs = data.items;
         let songIds = [];
