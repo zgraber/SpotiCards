@@ -111,7 +111,8 @@ router.get('/callback', (req, res, next) => {
                                 console.log("Added player " + player.player_name + " to db");
                             });
                         });
-                        res.redirect('/game/' + req.cookies['url_id'] + '/lobby');
+                        //res.redirect('/game/' + req.cookies['url_id'] + '/lobby');
+                        res.redirect('/join/confirm');
                     } else {
                         const error = new Error('Invalid Token');
                         error.httpStatusCode = 500;
