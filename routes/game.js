@@ -85,7 +85,8 @@ router.get('/:id/lobby', function (req, res) {
         active: {
             players: false
         },
-        id: req.params.id
+        id: req.params.id,
+        gameCode: ""
     };
     MongoClient.connect(db_url, function (err, db) {
         if (err) return res.next(err);
@@ -96,6 +97,7 @@ router.get('/:id/lobby', function (req, res) {
         }, function (err, result) {
             if (err) console.log(err);
             //console.log(result);
+            parms.gameCode = result.game_code;
             if (result.players.length > 0) {
                 parms.active.players = true;
                 parms.players = result.players;
