@@ -114,6 +114,19 @@
     font-family: proxima-nova, sans-serif;
 }
 
+.game-code-box {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-color: #191414;
+    font-family: proxima-nova, sans-serif;
+    opacity: 0.90;
+    margin-top: 10px;
+    margin-left: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
 .card {
     background-color: #191414;
     color: whitesmoke;
