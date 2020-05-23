@@ -64,7 +64,7 @@ async function getAnswers(question_ids, options, url_id) {
             if (question_ids[i] === 0) {
                 answers.push(getMaxIndex(players, 'danceability'));
             } else if (question_ids[i] === 1) {
-                answers.push(getMaxIndex(players, 'valence'));
+                answers.push(getMaxIndex(players, 'happiness'));
             } else if (question_ids[i] === 2) {
                 answers.push(getMaxIndex(players, 'acousticness'));
             } else if(question_ids[i] === 3) {
@@ -170,12 +170,13 @@ async function setTopFeats(access_token, index, url_id) {
             loudness: 0.0,
             acousticness: 0.0,
             instrumentalness: 0.0,
-            valence: 0.0,
-            tempo: 0.0,
+            happiness: 0.0,
+            sadness: 0.0,
+            tempo: 0.0
         };
 
         //Get all the top 50 songs' ids
-        let response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=long_term', options);
+        let response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=medium_term', options);
         let data = await response.json();
         let topSongs = data.items;
         let songIds = [];
@@ -190,12 +191,34 @@ async function setTopFeats(access_token, index, url_id) {
         audioFeats = data.audio_features;
         //Add all the features together for avg calculations
         for (var j = 0; j < audioFeats.length; j++) {
-            feats.danceability += audioFeats[j].danceability;
-            feats.energy += audioFeats[j].energy;
+            //If the danceability of a track is above 0.7, count it as danceable
+            if (audioFeats[j].danceability >= 0.7) {
+                feats.danceability += 1;
+            }
+
+            if (audioFeats[j].energy >= 0.75) {
+                feats.energy += 1;
+            }
+
             feats.loudness += audioFeats[j].loudness;
-            feats.acousticness += audioFeats[j].acousticness;
-            feats.instrumentalness += audioFeats[j].instrumentalness;
-            feats.valence += audioFeats[j].valence;
+
+            //If the acousticness of a track is above 0.7, count it as acoustic
+            if (audioFeats[j].acousticness >= 0.7) {
+                feats.acousticness += 1;
+            }
+
+            //If the instrumentalness of a track is above 0.7, count it as instrumental
+            if (audioFeats[j].instrumentalness >= 0.7) {
+                feats.instrumentalness += 1;
+            }
+
+            //If the valence of a track is above 0.7, count it as instrumental
+            if (audioFeats[j].valence >= 0.7) {
+                feats.happiness += 1;
+            } else if (audioFeats[j].valence <= 0.3) {
+                feats.sadness += 1;
+            }
+
             feats.tempo += audioFeats[j].tempo;
         }
         //Divide feat totals by total songs to get average
@@ -210,7 +233,8 @@ async function setTopFeats(access_token, index, url_id) {
         feat_set["players." + index + ".stats.loudness"] = feats.loudness;
         feat_set["players." + index + ".stats.acousticness"] = feats.acousticness;
         feat_set["players." + index + ".stats.instrumentalness"] = feats.instrumentalness;
-        feat_set["players." + index + ".stats.valence"] = feats.valence;
+        feat_set["players." + index + ".stats.happiness"] = feats.happiness;
+        feat_set["players." + index + ".stats.sadness"] = feats.sadness;
         feat_set["players." + index + ".stats.tempo"] = feats.tempo;
 
         //connect to Mongodb and set feats for player
