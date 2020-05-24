@@ -146,7 +146,7 @@ router.put('/:id/init', async function (req, res) {
     let numPlayers = r.players.length;
 
     //TODO: Add game parameters for customization (ex: number of questions)
-    let questionAmount = 5;
+    let questionAmount = 10;
     let question_ids = await getRandomQuestions(questionAmount, numPlayers);
 
     //TODO: Error catch all of these

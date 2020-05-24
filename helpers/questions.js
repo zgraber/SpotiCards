@@ -40,6 +40,8 @@ async function getOptions(question_ids, url_id) {
             } else if (question_ids[i] === 10) {
                 let playerFourStats = await game_helper.getPlayerStats(3,url_id);
                 options[i] = shuffle(playerFourStats.top_artists);
+            } else if (question_ids[i] === 11) {
+                options[i] = await game_helper.getPlayerNames(url_id);
             } else {
                 reject(new Error("Question not found"));
             }
@@ -63,30 +65,44 @@ async function getAnswers(question_ids, options, url_id) {
         for (let i = 0; i < question_ids.length; i++) {
             if (question_ids[i] === 0) {
                 answers.push(getMaxIndex(players, 'danceability'));
+                
             } else if (question_ids[i] === 1) {
                 answers.push(getMaxIndex(players, 'happiness'));
+
             } else if (question_ids[i] === 2) {
                 answers.push(getMaxIndex(players, 'acousticness'));
+
             } else if(question_ids[i] === 3) {
                 answers.push(getMaxIndex(players, 'energy'));
+
             } else if(question_ids[i] === 4) {
                 answers.push(getMaxIndex(players, 'instrumentalness'));
+
             } else if(question_ids[i] === 5) {
                 answers.push(getMaxIndex(players, 'loudness'));
+
             } else if(question_ids[i] === 6) {
                 answers.push(getMaxIndex(players, 'tempo'));
+
             } else if(question_ids[i] === 7) {
                 let topArtist = players[0].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
+
             } else if(question_ids[i] === 8) {
                 let topArtist = players[1].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
+
             } else if(question_ids[i] === 9) {
                 let topArtist = players[2].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
+
             } else if(question_ids[i] === 10) {
                 let topArtist = players[3].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
+
+            } else if(question_ids[i] === 11) {
+                answers.push(getMaxIndex(players, 'popularity'));
+
             } else {
                 reject(new Error("Question not found"));
             }
@@ -180,10 +196,13 @@ async function setTopFeats(access_token, index, url_id) {
         let data = await response.json();
         let topSongs = data.items;
         let songIds = [];
+        let avgPop = 0.0;
         for (var i = 0; i < topSongs.length; i++) {
             songIds.push(topSongs[i].id);
+            avgPop += topSongs[i].popularity;
         }
         let numSongs = songIds.length;
+        avgPop = avgPop / numSongs;
         //Look up all 50 tracks audio features and take a running total
         let trackURL = 'https://api.spotify.com/v1/audio-features/?ids=' + songIds.toString();
         response = await fetch(trackURL, options);
@@ -236,6 +255,7 @@ async function setTopFeats(access_token, index, url_id) {
         feat_set["players." + index + ".stats.happiness"] = feats.happiness;
         feat_set["players." + index + ".stats.sadness"] = feats.sadness;
         feat_set["players." + index + ".stats.tempo"] = feats.tempo;
+        feat_set["players." + index + ".stats.popularity"] = avgPop;
 
         //connect to Mongodb and set feats for player
         client = await MongoClient.connect(process.env.DB_URL);
