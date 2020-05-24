@@ -54,6 +54,8 @@ async function getOptions(question_ids, url_id) {
             } else if (question_ids[i] === 15) {
                 let playerFourStats = await game_helper.getPlayerStats(3, url_id);
                 options[i] = shuffle(playerFourStats.top_genres);
+            } else if (question_ids[i] === 16) {
+                options[i] = await game_helper.getPlayerNames(url_id);
             } else {
                 reject(new Error("Question not found"));
             }
@@ -130,6 +132,9 @@ async function getAnswers(question_ids, options, url_id) {
             } else if (question_ids[i] === 15) {
                 let topGenre = players[3].stats.top_genres[0];
                 answers.push(options[i].indexOf(topGenre));
+
+            } else if (question_ids[i] === 16) {
+                answers.push(getMaxIndex(players, 'sadness'));
 
             } else {
                 reject(new Error("Question not found"));
