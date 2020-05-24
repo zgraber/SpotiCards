@@ -29,16 +29,16 @@ async function getOptions(question_ids, url_id) {
             } else if (question_ids[i] === 6) {
                 options[i] = await game_helper.getPlayerNames(url_id);
             } else if (question_ids[i] === 7) {
-                let playerOneStats = await game_helper.getPlayerStats(0,url_id);
+                let playerOneStats = await game_helper.getPlayerStats(0, url_id);
                 options[i] = shuffle(playerOneStats.top_artists);
             } else if (question_ids[i] === 8) {
-                let playerTwoStats = await game_helper.getPlayerStats(1,url_id);
+                let playerTwoStats = await game_helper.getPlayerStats(1, url_id);
                 options[i] = shuffle(playerTwoStats.top_artists);
             } else if (question_ids[i] === 9) {
-                let playerThreeStats = await game_helper.getPlayerStats(2,url_id);
+                let playerThreeStats = await game_helper.getPlayerStats(2, url_id);
                 options[i] = shuffle(playerThreeStats.top_artists);
             } else if (question_ids[i] === 10) {
-                let playerFourStats = await game_helper.getPlayerStats(3,url_id);
+                let playerFourStats = await game_helper.getPlayerStats(3, url_id);
                 options[i] = shuffle(playerFourStats.top_artists);
             } else if (question_ids[i] === 11) {
                 options[i] = await game_helper.getPlayerNames(url_id);
@@ -65,42 +65,42 @@ async function getAnswers(question_ids, options, url_id) {
         for (let i = 0; i < question_ids.length; i++) {
             if (question_ids[i] === 0) {
                 answers.push(getMaxIndex(players, 'danceability'));
-                
+
             } else if (question_ids[i] === 1) {
                 answers.push(getMaxIndex(players, 'happiness'));
 
             } else if (question_ids[i] === 2) {
                 answers.push(getMaxIndex(players, 'acousticness'));
 
-            } else if(question_ids[i] === 3) {
+            } else if (question_ids[i] === 3) {
                 answers.push(getMaxIndex(players, 'energy'));
 
-            } else if(question_ids[i] === 4) {
+            } else if (question_ids[i] === 4) {
                 answers.push(getMaxIndex(players, 'instrumentalness'));
 
-            } else if(question_ids[i] === 5) {
+            } else if (question_ids[i] === 5) {
                 answers.push(getMaxIndex(players, 'loudness'));
 
-            } else if(question_ids[i] === 6) {
+            } else if (question_ids[i] === 6) {
                 answers.push(getMaxIndex(players, 'tempo'));
 
-            } else if(question_ids[i] === 7) {
+            } else if (question_ids[i] === 7) {
                 let topArtist = players[0].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
 
-            } else if(question_ids[i] === 8) {
+            } else if (question_ids[i] === 8) {
                 let topArtist = players[1].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
 
-            } else if(question_ids[i] === 9) {
+            } else if (question_ids[i] === 9) {
                 let topArtist = players[2].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
 
-            } else if(question_ids[i] === 10) {
+            } else if (question_ids[i] === 10) {
                 let topArtist = players[3].stats.top_artists[0];
                 answers.push(options[i].indexOf(topArtist));
 
-            } else if(question_ids[i] === 11) {
+            } else if (question_ids[i] === 11) {
                 answers.push(getMaxIndex(players, 'popularity'));
 
             } else {
@@ -125,11 +125,12 @@ async function initPlayers(url_id) {
             //console.log(game);
             let players = game.players;
             for (var i = 0; i < players.length; i++) {
-               promises.push(setTopFeats(players[i].access_token, i, url_id));
-               promises.push(setTopArtists(players[i].access_token, i, url_id));
+                promises.push(setTopFeats(players[i].access_token, i, url_id));
+                promises.push(setTopArtists(players[i].access_token, i, url_id));
+                promises.push(setTopGenres(players[i].access_token, i, url_id));
             }
             console.log("DONE INIT");
-            Promise.all(promises).then(()=>{
+            Promise.all(promises).then(() => {
                 resolve(true);
             })
         } catch (err) {
@@ -151,13 +152,66 @@ async function setTopArtists(access_token, index, url_id) {
         let data = await response.json();
         let topArtists = data.items;
         let artistNames = [];
-        for(let i = 0; i < topArtists.length; i++) {
+        for (let i = 0; i < topArtists.length; i++) {
             artistNames.push(topArtists[i].name);
         }
 
         let set = {};
 
         set["players." + index + ".stats.top_artists"] = artistNames;
+
+        client = await MongoClient.connect(process.env.DB_URL);
+        const db = client.db("SpotiCards");
+        db.collection("Games").updateOne({
+            url_id: url_id
+        }, {
+            $set: set
+        });
+        resolve("Success");
+    });
+}
+
+async function setTopGenres(access_token, index, url_id) {
+    return new Promise(async (resolve, reject) => {
+        //Request options
+        var options = {
+            headers: {
+                'Authorization': 'Bearer ' + access_token
+            }
+        };
+
+        //Get all the top 50 songs' ids
+        let response = await fetch('https://api.spotify.com/v1/me/top/artists?limit=50&time_range=long_term', options);
+        let data = await response.json();
+        let topArtists = data.items;
+
+        let genres = {};
+        let topGenres = [];
+
+        for (let i = 0; i < topArtists.length; i++) {
+            for (var genre = 0; genre < topArtists[i].genres.length; genre++) {
+                if (genres[topArtists[i].genres[genre]] != null) {
+                    genres[topArtists[i].genres[genre]] = genres[topArtists[i].genres[genre]] + 1;
+                } else {
+                    genres[topArtists[i].genres[genre]] = 1;
+                }
+            }
+        }
+
+        for (var g in genres) {
+            topGenres.push([g, genres[g]]);
+        }
+        topGenres.sort((a,b) => {return b[1] - a[1]});
+        /*console.log("Top Genres:");
+        console.log(topGenres);*/
+        topFour = [];
+        for(let i = 0; i < 4; i++) {
+            topFour.push(topGenres[i][0]);
+        }
+
+        let set = {};
+
+        set["players." + index + ".stats.top_genres"] = topFour;
 
         client = await MongoClient.connect(process.env.DB_URL);
         const db = client.db("SpotiCards");
