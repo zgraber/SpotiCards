@@ -42,6 +42,18 @@ async function getOptions(question_ids, url_id) {
                 options[i] = shuffle(playerFourStats.top_artists);
             } else if (question_ids[i] === 11) {
                 options[i] = await game_helper.getPlayerNames(url_id);
+            } else if (question_ids[i] === 12) {
+                let playerOneStats = await game_helper.getPlayerStats(0, url_id);
+                options[i] = shuffle(playerOneStats.top_genres);
+            } else if (question_ids[i] === 13) {
+                let playerTwoStats = await game_helper.getPlayerStats(1, url_id);
+                options[i] = shuffle(playerTwoStats.top_genres);
+            } else if (question_ids[i] === 14) {
+                let playerThreeStats = await game_helper.getPlayerStats(2, url_id);
+                options[i] = shuffle(playerThreeStats.top_genres);
+            } else if (question_ids[i] === 15) {
+                let playerFourStats = await game_helper.getPlayerStats(3, url_id);
+                options[i] = shuffle(playerFourStats.top_genres);
             } else {
                 reject(new Error("Question not found"));
             }
@@ -102,6 +114,22 @@ async function getAnswers(question_ids, options, url_id) {
 
             } else if (question_ids[i] === 11) {
                 answers.push(getMaxIndex(players, 'popularity'));
+
+            } else if (question_ids[i] === 12) {
+                let topGenre = players[0].stats.top_genres[0];
+                answers.push(options[i].indexOf(topGenre));
+
+            } else if (question_ids[i] === 13) {
+                let topGenre = players[1].stats.top_genres[0];
+                answers.push(options[i].indexOf(topGenre));
+
+            } else if (question_ids[i] === 14) {
+                let topGenre = players[2].stats.top_genres[0];
+                answers.push(options[i].indexOf(topGenre));
+
+            } else if (question_ids[i] === 15) {
+                let topGenre = players[3].stats.top_genres[0];
+                answers.push(options[i].indexOf(topGenre));
 
             } else {
                 reject(new Error("Question not found"));

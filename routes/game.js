@@ -209,13 +209,13 @@ router.get('/:id/question', (req, res) => {
             var question_text = question.text;
 
             //For top artist questions
-            if(question_text.contains('Player1')){
+            if(question_text.includes('Player1')){
                 question_text = question_text.replace('Player1', players[0].player_name);
-            } else if (question_text.contains('Player2')) {
+            } else if (question_text.includes('Player2')) {
                 question_text = question_text.replace('Player2', players[1].player_name);
-            } else if (question_text.contains('Player3')) {
+            } else if (question_text.includes('Player3')) {
                 question_text = question_text.replace('Player3', players[2].player_name);
-            } else if (question_text.contains('Player4')) {
+            } else if (question_text.includes('Player4')) {
                 question_text = question_text.replace('Player4', players[3].player_name);
             }
 
