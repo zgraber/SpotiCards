@@ -11,7 +11,7 @@
     background: linear-gradient(122deg, #12f3b9, #bb2ac4, #0042ff);
 	background-size: 400% 400%;
 	-webkit-animation: gradientBG 10s ease infinite;
-    animation: gradientBG 10s ease infinite;
+    animation: gradientBG 30s ease infinite;
 }
 
 .error {
@@ -119,7 +119,25 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    font-size: 0.75vw;
+    font-family: proxima-nova, sans-serif;
     /* end centering text part */
-    width: 5%;
+    width: 7%;
     height: 5%;
+}
+
+#res-dismiss{
+    margin: auto;
+    margin-top: 10px;
+    /* centering text in box */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.75vw;
+    font-family: proxima-nova, sans-serif;
+    /* end centering text part */
+    width: 2.5%;
+    height: 2.5%;
+    cursor: pointer;
+    background-color: #696969
 }
