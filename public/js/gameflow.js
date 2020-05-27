@@ -29,12 +29,17 @@ getQuestionInfo = () => {
 }
 
 answerSubmit = (event) => {
+    disableAnswers();
     let index = $(".btn-options").index($(event.target));
     event.preventDefault();
     url = window.location.href;
     var id = url.substring(url.lastIndexOf('/') + 1);
     socket.emit('answer submit', {answer: index, url_id: id});
 };
+
+disableAnswers = () => {
+    $("button").prop("disabled", true);
+}
 
 $(document).ready(()=>{
     getQuestionInfo();
