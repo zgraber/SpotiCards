@@ -7,8 +7,9 @@ getQuestionInfo = () => {
         url: url,
         success: (result) => {
             //Add jquery to clear result box
-            // $("#result-box").text("")
-            // $("#result-box").css("background-color", "");
+            $("#result-box").text("")
+            $("#result-box").css("background-color", "");
+            $("#res-dismiss").hide();
 
             $("#question-header").text("Question " + result.question_number);
             $("#question-text").text(result.question_text);
@@ -42,13 +43,15 @@ $(document).ready(()=>{
             //alert("CORRECT");
             $("#result-box").css("background-color", "#1DB954");
             $("#result-box").text("Congratulations!");
+            $("#res-dismiss").show();
         } else {
             // alert("INCORRECT");
             $("#result-box").css("background-color", "#b91d34");
             $("#result-box").text("Incorrect :(");
+            $("#res-dismiss").show();
         }
         
-        getQuestionInfo();
+        //getQuestionInfo();
     });
 });
 
