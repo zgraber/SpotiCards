@@ -37,6 +37,7 @@ answerSubmit = (event) => {
     socket.emit('answer submit', {answer: index, url_id: id});
 };
 
+// Makes buttons unclickable and TODO: turns the correct answer a different color from the others
 disableAnswers = () => {
     $("button").prop("disabled", true);
 }

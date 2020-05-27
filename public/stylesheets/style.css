@@ -124,6 +124,7 @@
     /* end centering text part */
     width: 7%;
     height: 5%;
+    border-radius: 5px
 }
 
 #res-dismiss{
@@ -139,5 +140,6 @@
     width: 2.5%;
     height: 2.5%;
     cursor: pointer;
+    border-radius: 25px;
     background-color: #696969
 }
