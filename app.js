@@ -66,10 +66,10 @@ io.on("connection", (socket) => {
         console.log('User disconnected');
     });
     socket.on('answer submit', async (data) => {
-        let result = await game_helper.verifyAnswer(data.answer, data.url_id)
-        console.log("answer correct = " + result);
+        let response = await game_helper.verifyAnswer(data.answer, data.url_id)
+        console.log("answer correct = " + response.result);
         game_helper.incrementQuestion(data.url_id, (res) => {
-            socket.emit('answer result', result);
+            socket.emit('answer result', response);
         });
     });
 });
