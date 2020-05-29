@@ -56,8 +56,7 @@ $(document).ready(()=>{
             $("#result-box").text("Incorrect :(");
             $("#res-dismiss").show();
         }
-        
-        //getQuestionInfo();
+
     });
 });
 

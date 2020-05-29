@@ -122,8 +122,8 @@
     font-size: 0.75vw;
     font-family: proxima-nova, sans-serif;
     /* end centering text part */
-    width: 7%;
-    height: 5%;
+    width: 10vw;
+    height: 4vw;
     border-radius: 5px
 }
 
@@ -137,8 +137,8 @@
     font-size: 0.75vw;
     font-family: proxima-nova, sans-serif;
     /* end centering text part */
-    width: 2.5%;
-    height: 2.5%;
+    width: 3vw;
+    height: 1vw;
     cursor: pointer;
     border-radius: 25px;
     background-color: #696969
