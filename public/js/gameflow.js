@@ -43,6 +43,7 @@ disableAnswers = () => {
 }
 
 $(document).ready(()=>{
+    $("#res-dismiss").hide();
     getQuestionInfo();
     socket.on('answer result', (data)=> {
         if(data === true) {
