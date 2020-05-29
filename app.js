@@ -18,7 +18,7 @@ dotenv.config();
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-let port = 3000;
+let port = process.env.PORT;
 
 app.use(express.static(__dirname + '/public'))
     .use(cors())
