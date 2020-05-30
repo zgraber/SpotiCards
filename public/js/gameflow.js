@@ -47,9 +47,7 @@ $(document).ready(()=>{
     getQuestionInfo();
     socket.on('answer result', (data)=> {
         // correct_answer <-- the index of the corrrect answer
-        console.log(data);
         var index = data.correct_answer;
-        console.log(index);
         if(data.result === true) {
             //change color of incorrect buttons
             $(".btn").css("background-color", "#b91d34");
