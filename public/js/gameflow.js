@@ -1,10 +1,16 @@
 var socket = io();
+var points = 0;
 
 getQuestionInfo = () => {
     url = window.location.href + '/question';
     $.ajax({
         url: url,
         success: (result) => {
+            //Add jquery to clear result box
+            $("#result-box").text("")
+            $("#result-box").css("background-color", "");
+            $("#res-dismiss").hide();
+
             $("#question-header").text("Question " + result.question_number);
             $("#question-text").text(result.question_text);
             $("#options").empty();
@@ -23,6 +29,7 @@ getQuestionInfo = () => {
 }
 
 answerSubmit = (event) => {
+    disableAnswers();
     let index = $(".btn-options").index($(event.target));
     event.preventDefault();
     url = window.location.href;
@@ -30,15 +37,43 @@ answerSubmit = (event) => {
     socket.emit('answer submit', {answer: index, url_id: id});
 };
 
+// Makes buttons unclickable and TODO: turns the correct answer a different color from the others
+disableAnswers = () => {
+    $("button").prop("disabled", true);
+}
+
 $(document).ready(()=>{
+    $("#res-dismiss").hide();
     getQuestionInfo();
     socket.on('answer result', (data)=> {
-        if(data === true) {
-            alert("CORRECT");
+        // correct_answer <-- the index of the corrrect answer
+        console.log(data);
+        var index = data.correct_answer;
+        console.log(index);
+        if(data.result === true) {
+            //change color of incorrect buttons
+            $(".btn").css("background-color", "#b91d34");
+            $(".btn").css("border-color", "#b91d34");
+            // change color of button that is correct
+            $("#option" + index).css("background-color", "#d4af37");
+            $("#option" + index).css("border-color", "#d4af37");
+            // display correct box
+            $("#result-box").css("background-color", "#1DB954");
+            $("#result-box").text("Congratulations!");
+            $("#res-dismiss").show();
         } else {
-            alert("INCORRECT");
+            //change color of incorrect buttons
+            $(".btn").css("background-color", "#b91d34");
+            $(".btn").css("border-color", "#b91d34");
+            // change color of button that is correct
+            $("#option" + index).css("background-color", "#d4af37");
+            $("#option" + index).css("border-color", "#d4af37");
+            // display incorrect box
+            $("#result-box").css("background-color", "#b91d34");
+            $("#result-box").text("Incorrect :(");
+            $("#res-dismiss").show();
         }
-        getQuestionInfo();
+
     });
 
     socket.on('game over', () => {
@@ -47,3 +82,4 @@ $(document).ready(()=>{
     });
 });
 
+// .btn-primary: disabled {background-color: #007bff}

@@ -19,11 +19,11 @@ function verifyAnswer(answer, url_id, ) {
                 console.log(result.answers);
                 let active_question = result.active_question;
                 let answers = result.answers;
-                if (answer === answers[active_question]) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
+                let correctAnswer = answers[active_question];
+                resolve({
+                        result: (answer === answers[active_question]),
+                        correct_answer: correctAnswer
+                });
             });
         });
     })
