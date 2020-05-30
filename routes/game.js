@@ -144,6 +144,7 @@ router.get('/:id/players', function(req,res) {
 
 //Creates a game and adds it to MongoDB
 router.post('/', async function (req, res, next) {
+    console.log(db_url);
     var url_id = generateUrlId();
     var game_code = generateGameCode();
     game = {
