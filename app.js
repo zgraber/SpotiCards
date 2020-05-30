@@ -18,7 +18,7 @@ dotenv.config();
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-let port = 3000;
+let port = process.env.PORT;
 
 app.use(express.static(__dirname + '/public'))
     .use(cors())
@@ -61,7 +61,22 @@ app.use(function (err, req, res, next) {
 
 //SOCKET.IO
 io.on("connection", (socket) => {
+    let room;
     console.log('User connected');
+
+    socket.on('register screen', (data) => {
+        room = data.game_code;
+        socket.join(room);
+        console.log('Screen view has joined room ' + data.game_code);
+    })
+
+    socket.on('join room', (data)=>{
+        room = data.game_code;
+        socket.join(room);
+        console.log(data.player_name + ' has joined room ' + data.game_code);
+        io.to(room).emit('player join', {player_name: data.player_name});
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
@@ -69,7 +84,11 @@ io.on("connection", (socket) => {
         let response = await game_helper.verifyAnswer(data.answer, data.url_id)
         console.log("answer correct = " + response.result);
         game_helper.incrementQuestion(data.url_id, (res) => {
-            socket.emit('answer result', response);
+            if (res){
+                socket.emit('answer result', result);
+            } else {
+                socket.emit('game over');
+            }
         });
     });
 });

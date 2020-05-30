@@ -75,6 +75,11 @@ $(document).ready(()=>{
         }
 
     });
+
+    socket.on('game over', () => {
+        url = window.location.href;
+        window.location.href = url + "/game_over";        
+    });
 });
 
 // .btn-primary: disabled {background-color: #007bff}
