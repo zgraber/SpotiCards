@@ -85,7 +85,7 @@ io.on("connection", (socket) => {
         console.log("answer correct = " + response.result);
         game_helper.incrementQuestion(data.url_id, (res) => {
             if (res){
-                socket.emit('answer result', result);
+                socket.emit('answer result', response);
             } else {
                 socket.emit('game over');
             }
