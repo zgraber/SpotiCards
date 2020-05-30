@@ -1,5 +1,6 @@
 var socket = io();
 var points = 0;
+var score = 0;
 
 getQuestionInfo = () => {
     url = window.location.href + '/question';
@@ -44,11 +45,15 @@ disableAnswers = () => {
 
 $(document).ready(()=>{
     $("#res-dismiss").hide();
+    $("#score").text(score);
     getQuestionInfo();
     socket.on('answer result', (data)=> {
         // correct_answer <-- the index of the corrrect answer
         var index = data.correct_answer;
         if(data.result === true) {
+            //increment score
+            score = score + 1;
+            $("#score").text(score);
             //change color of incorrect buttons
             $(".btn").css("background-color", "#b91d34");
             $(".btn").css("border-color", "#b91d34");
