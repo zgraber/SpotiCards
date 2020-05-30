@@ -46,7 +46,7 @@ $(document).ready(()=>{
     $("#res-dismiss").hide();
     getQuestionInfo();
     socket.on('answer result', (data)=> {
-        if(data === true) {
+        if(data.result === true) {
             //alert("CORRECT");
             $("#result-box").css("background-color", "#1DB954");
             $("#result-box").text("Congratulations!");
