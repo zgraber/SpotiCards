@@ -46,13 +46,29 @@ $(document).ready(()=>{
     $("#res-dismiss").hide();
     getQuestionInfo();
     socket.on('answer result', (data)=> {
+        // correct_answer <-- the index of the corrrect answer
+        console.log(data);
+        var index = data.correct_answer;
+        console.log(index);
         if(data.result === true) {
-            //alert("CORRECT");
+            //change color of incorrect buttons
+            $(".btn").css("background-color", "#b91d34");
+            $(".btn").css("border-color", "#b91d34");
+            // change color of button that is correct
+            $("#option" + index).css("background-color", "#d4af37");
+            $("#option" + index).css("border-color", "#d4af37");
+            // display correct box
             $("#result-box").css("background-color", "#1DB954");
             $("#result-box").text("Congratulations!");
             $("#res-dismiss").show();
         } else {
-            // alert("INCORRECT");
+            //change color of incorrect buttons
+            $(".btn").css("background-color", "#b91d34");
+            $(".btn").css("border-color", "#b91d34");
+            // change color of button that is correct
+            $("#option" + index).css("background-color", "#d4af37");
+            $("#option" + index).css("border-color", "#d4af37");
+            // display incorrect box
             $("#result-box").css("background-color", "#b91d34");
             $("#result-box").text("Incorrect :(");
             $("#res-dismiss").show();
@@ -61,3 +77,4 @@ $(document).ready(()=>{
     });
 });
 
+// .btn-primary: disabled {background-color: #007bff}
