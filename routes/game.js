@@ -1,18 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var assert = require('assert');
-var SpotifyWebApi = require('spotify-web-api-node');
 const game_helper = require('../helpers/game-helper');
 const question_helper = require('../helpers/questions');
-var db_url = process.env.DB_URL;
-var MongoClient = require('mongodb').MongoClient;
+var {Connection} = require('../helpers/mongo');
 var app = express();
-
-var spotifyApi = new SpotifyWebApi({
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET,
-    redirectUri: process.env.REDIRECT_URI
-});
 
 //Generates a 8 length alphanumeric url id
 function generateUrlId() {
@@ -39,34 +31,42 @@ function generateGameCode() {
 //Generates a random subarray
 async function getRandomQuestions(size, numPlayers) {
     return new Promise(async function (resolve, reject) {
-        var client = await MongoClient.connect(db_url);
-        const db = client.db("SpotiCards");
-
-
-        let arr = [];
-        let r = await db.collection("Questions").find({players_req: {$lte: numPlayers}}).forEach(doc => {
-            arr.push(doc);
-        });
-        //If there are less matching questions than specified size
-        if(arr.length < size) {
-            size = arr.length;
+        try {
+            const dbo = Connection.db.db("SpotiCards");
+            let arr = [];
+            let r = await dbo.collection("Questions").find({
+                players_req: {
+                    $lte: numPlayers
+                }
+            }).forEach(doc => {
+                arr.push(doc);
+            });
+            //If there are less matching questions than specified size
+            if (arr.length < size) {
+                size = arr.length;
+            }
+            var shuffled = arr.slice(0),
+                i = arr.length,
+                min = i - size,
+                temp, index;
+            while (i-- > min) {
+                index = Math.floor((i + 1) * Math.random());
+                temp = shuffled[index];
+                shuffled[index] = shuffled[i];
+                shuffled[i] = temp;
+            }
+            let questions = shuffled.slice(min);
+            let questionNums = [];
+            questions.forEach(function (q) {
+                questionNums.push(q.question_id);
+            });
+            resolve(questionNums);
+        } catch (err) {
+            //TODO: Error catch better
+            console.log("ERROR:");
+            console.log(err);
+            reject();
         }
-        var shuffled = arr.slice(0),
-            i = arr.length,
-            min = i - size,
-            temp, index;
-        while (i-- > min) {
-            index = Math.floor((i + 1) * Math.random());
-            temp = shuffled[index];
-            shuffled[index] = shuffled[i];
-            shuffled[i] = temp;
-        }
-        let questions = shuffled.slice(min);
-        let questionNums = [];
-        questions.forEach(function (q) {
-            questionNums.push(q.question_id);
-        });
-        resolve(questionNums);
     });
 }
 
@@ -82,23 +82,21 @@ router.get('/:id/lobby', function (req, res) {
         id: req.params.id,
         gameCode: ""
     };
-    MongoClient.connect(db_url, function (err, db) {
-        if (err) return res.next(err);
-        var dbo = db.db('SpotiCards');
-        var collection = dbo.collection('Games');
-        collection.findOne({
-            url_id: req.params.id
-        }, function (err, result) {
-            if (err) console.log(err);
-            //console.log(result);
-            parms.gameCode = result.game_code;
-            if (result.players.length > 0) {
-                parms.active.players = true;
-                parms.players = result.players;
-            }
-            console.log(parms);
-            res.render('lobby', parms);
-        });
+
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        url_id: req.params.id
+    }, function (err, result) {
+        if (err) console.log(err);
+        //console.log(result);
+        parms.gameCode = result.game_code;
+        if (result.players.length > 0) {
+            parms.active.players = true;
+            parms.players = result.players;
+        }
+        console.log(parms);
+        res.render('lobby', parms);
     });
 });
 
@@ -107,44 +105,41 @@ router.get('/:id', function (req, res) {
     res.render("question");
 });
 
-router.get('/:id/authorize', function(req, res) {
+router.get('/:id/authorize', function (req, res) {
     res.clearCookie('url_id');
     res.cookie('url_id', req.params.id);
     res.redirect('/authorize');
 });
 
 //Get player names
-router.get('/:id/players', function(req,res) {
-    MongoClient.connect(db_url, function (err, db) {
-        if (err) return res.next(err);
-        var dbo = db.db('SpotiCards');
-        var collection = dbo.collection('Games');
-        collection.findOne({
-            url_id: req.params.id
-        }, function (err, result) {
-            if (err) res.next(err);
-            //console.log(result);
-            //If the game hasn't been initialized, redirect to lobby
-            if (result) {
-                player_names = [];
-                for (var i = 0; i < result.players.length; i++) {
-                    player_names.push(result.players[i].player_name);
-                }
-                res.json({
-                    player_names: player_names
-                });
-            } else {
-                res.json({
-                    player_names: []
-                });
+router.get('/:id/players', function (req, res) {
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        url_id: req.params.id
+    }, function (err, result) {
+        if (err) res.next(err);
+        //console.log(result);
+        //If the game hasn't been initialized, redirect to lobby
+        if (result) {
+            player_names = [];
+            for (var i = 0; i < result.players.length; i++) {
+                player_names.push(result.players[i].player_name);
             }
-        });
+            res.json({
+                player_names: player_names
+            });
+        } else {
+            res.json({
+                player_names: []
+            });
+        }
     });
+
 });
 
 //Creates a game and adds it to MongoDB
 router.post('/', async function (req, res, next) {
-    console.log(process.env);
     var url_id = generateUrlId();
     var game_code = generateGameCode();
     game = {
@@ -158,14 +153,11 @@ router.post('/', async function (req, res, next) {
         active_question: -1,
         players: []
     };
-    let client;
     try {
-        client = await MongoClient.connect(db_url);
-        const db = client.db("SpotiCards");
-        let r = await db.collection("Games").insertOne(game);
+        const dbo = Connection.db.db("SpotiCards");
+        let r = await dbo.collection("Games").insertOne(game);
         assert.equal(1, r.insertedCount);
         console.log("Game with code " + game_code + " added to db");
-        client.close();
         res.redirect('/game/' + url_id + '/lobby');
     } catch (err) {
         console.log("ERROR: " + err);
@@ -176,9 +168,9 @@ router.post('/', async function (req, res, next) {
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
 router.put('/:id/init', async function (req, res) {
     console.log("Initializing game " + req.params.id);
-    let client = await MongoClient.connect(process.env.DB_URL);
-    const db = client.db("SpotiCards");
-    let r = await db.collection("Games").findOne({
+    const dbo = Connection.db.db("SpotiCards");
+    var collection = dbo.collection('Games');
+    let r = await collection.findOne({
         url_id: req.params.id
     });
     let numPlayers = r.players.length;
@@ -194,105 +186,91 @@ router.put('/:id/init', async function (req, res) {
 
     let answers = await question_helper.getAnswers(question_ids, options, req.params.id);
 
-    MongoClient.connect(db_url, function (err, db) {
-        if (err) {
-            return res.next(err);
+    //Set question, options, answers, active question, and updated_at fields in MongoDB
+    collection.updateOne({
+        url_id: req.params.id
+    }, {
+        $set: {
+            game_state: "active",
+            question_ids: question_ids,
+            options: options,
+            answers: answers,
+            active_question: 0,
+            updated_at: new Date(Date.now())
         }
-        var dbo = db.db('SpotiCards');
-        var collection = dbo.collection('Games');
-        //Set question, options, answers, active question, and updated_at fields in MongoDB
-        collection.updateOne({
-            url_id: req.params.id
-        }, {
-            $set: {
-                game_state: "active",
-                question_ids: question_ids,
-                options: options,
-                answers: answers,
-                active_question: 0,
-                updated_at: new Date(Date.now())
-            }
-        }, function (err, result) {
-            if (err) return res.next(err);
-            console.log("Initialized Game " + req.params.id);
-            //Redirect to game view
-            res.redirect('/game/' + req.params.id);
-        });
+    }, function (err, result) {
+        if (err) return res.next(err);
+        console.log("Initialized Game " + req.params.id);
+        //Redirect to game view
+        res.redirect('/game/' + req.params.id);
     });
 });
 
 //Get JSON data for active question
 router.get('/:id/question', (req, res) => {
-    MongoClient.connect(db_url, function (err, db) {
-        if (err) return res.next(err);
-        var dbo = db.db('SpotiCards');
-        var collection = dbo.collection('Games');
-        collection.findOne({
-            url_id: req.params.id
-        }, async function (err, result) {
-            if (err) res.next(err);
-            console.log(result);
-            //If the game hasn't been initialized, redirect to lobby
-            if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
-                console.log('Game not initalized');
-                res.redirect('/game/' + req.params.id + '/lobby');
-            }
-            var question_id = result.question_ids[result.active_question];
-            var options = result.options[result.active_question];
-            let players = result.players;
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        url_id: req.params.id
+    }, async function (err, result) {
+        if (err) res.next(err);
+        console.log(result);
+        //If the game hasn't been initialized, redirect to lobby
+        if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
+            console.log('Game not initalized');
+            res.redirect('/game/' + req.params.id + '/lobby');
+        }
+        var question_id = result.question_ids[result.active_question];
+        var options = result.options[result.active_question];
+        let players = result.players;
 
-            let question = await dbo.collection("Questions").findOne({
-                question_id: question_id
-            });
-            var question_text = question.text;
+        let question = await dbo.collection("Questions").findOne({
+            question_id: question_id
+        });
+        var question_text = question.text;
 
-            //For top artist questions
-            if(question_text.includes('Player1')){
-                question_text = question_text.replace('Player1', players[0].player_name);
-            } else if (question_text.includes('Player2')) {
-                question_text = question_text.replace('Player2', players[1].player_name);
-            } else if (question_text.includes('Player3')) {
-                question_text = question_text.replace('Player3', players[2].player_name);
-            } else if (question_text.includes('Player4')) {
-                question_text = question_text.replace('Player4', players[3].player_name);
-            }
-
-            res.json({
-                question_text: question_text,
-                question_number: result.active_question + 1,
-                options: options
-            });
+        //For top artist questions
+        if (question_text.includes('Player1')) {
+            question_text = question_text.replace('Player1', players[0].player_name);
+        } else if (question_text.includes('Player2')) {
+            question_text = question_text.replace('Player2', players[1].player_name);
+        } else if (question_text.includes('Player3')) {
+            question_text = question_text.replace('Player3', players[2].player_name);
+        } else if (question_text.includes('Player4')) {
+            question_text = question_text.replace('Player4', players[3].player_name);
+        }
+        res.json({
+            question_text: question_text,
+            question_number: result.active_question + 1,
+            options: options
         });
     });
 });
 
 //Get game by Game code
 router.get('/', (req, res) => {
-    MongoClient.connect(db_url, function (err, db) {
-        if (err) return res.next(err);
-        var dbo = db.db('SpotiCards');
-        var collection = dbo.collection('Games');
-        collection.findOne({
-            game_code: req.query.code
-        }, function (err, result) {
-            if (err) res.next(err);
-            if(result){
-                res.clearCookie('game_code');
-                res.cookie('game_code', req.query.code);
-                res.json({
-                    found: true,
-                    url_id: result.url_id,
-                })
-            } else {
-                res.json({
-                    found: false
-                })
-            }
-        });
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        game_code: req.query.code
+    }, function (err, result) {
+        if (err) res.next(err);
+        if (result) {
+            res.clearCookie('game_code');
+            res.cookie('game_code', req.query.code);
+            res.json({
+                found: true,
+                url_id: result.url_id,
+            })
+        } else {
+            res.json({
+                found: false
+            })
+        }
     });
 });
 
-router.get('/:id/game_over', function(req, res) {
+router.get('/:id/game_over', function (req, res) {
     res.render("end");
 });
 

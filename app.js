@@ -9,7 +9,9 @@ const exhbs = require('express-handlebars');
 const session = require('express-session');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
 const game_helper = require('./helpers/game-helper');
+var {Connection} = require('./helpers/mongo');
 
 //Configure Environment variables
 dotenv.config();
@@ -93,6 +95,6 @@ io.on("connection", (socket) => {
     });
 });
 
-
-
-server.listen(port, () => console.log(`SpotiCards running at http://localhost:${port}`))
+//Establish connection to enable pooling
+Connection.connectToMongo();
+server.listen(port, () => console.log(`Habitune running at http://localhost:${port}`))

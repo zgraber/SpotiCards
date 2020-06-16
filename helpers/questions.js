@@ -1,12 +1,11 @@
-var MongoClient = require('mongodb').MongoClient;
 const game_helper = require('../helpers/game-helper');
 const fetch = require('node-fetch');
+var {Connection} = require('./mongo');
 
 async function getOptions(question_ids, url_id) {
     return new Promise(async function (resolve, reject) {
-        let client = await MongoClient.connect(process.env.DB_URL);
-        const db = client.db("SpotiCards");
-        let r = db.collection("Games").findOne({
+        const dbo = Connection.db.db("SpotiCards");
+        let r = dbo.collection("Games").findOne({
             url_id: url_id
         });
 
@@ -67,11 +66,11 @@ async function getOptions(question_ids, url_id) {
 
 async function getAnswers(question_ids, options, url_id) {
     return new Promise(async function (resolve, reject) {
-        client = await MongoClient.connect(process.env.DB_URL);
-        const db = client.db("SpotiCards");
-        let game = await db.collection("Games").findOne({
+        const dbo = Connection.db.db("SpotiCards");
+        let game = await dbo.collection("Games").findOne({
             url_id: url_id
         });
+
         let players = game.players;
 
         let answers = [];
@@ -135,7 +134,6 @@ async function getAnswers(question_ids, options, url_id) {
 
             } else if (question_ids[i] === 16) {
                 answers.push(getMaxIndex(players, 'sadness'));
-
             } else {
                 reject(new Error("Question not found"));
             }
@@ -150,9 +148,8 @@ async function initPlayers(url_id) {
         try {
             var promises = [];
 
-            client = await MongoClient.connect(process.env.DB_URL);
-            const db = client.db("SpotiCards");
-            let game = await db.collection("Games").findOne({
+            const dbo = Connection.db.db("SpotiCards");
+            let game = await dbo.collection("Games").findOne({
                 url_id: url_id
             });
             //console.log(game);
@@ -169,6 +166,8 @@ async function initPlayers(url_id) {
         } catch (err) {
             console.log(err);
             reject(err);
+        } finally {
+            client.close();
         }
     });
 }
@@ -193,9 +192,8 @@ async function setTopArtists(access_token, index, url_id) {
 
         set["players." + index + ".stats.top_artists"] = artistNames;
 
-        client = await MongoClient.connect(process.env.DB_URL);
-        const db = client.db("SpotiCards");
-        db.collection("Games").updateOne({
+        const dbo = Connection.db.db("SpotiCards");
+        dbo.collection("Games").updateOne({
             url_id: url_id
         }, {
             $set: set
@@ -234,11 +232,13 @@ async function setTopGenres(access_token, index, url_id) {
         for (var g in genres) {
             topGenres.push([g, genres[g]]);
         }
-        topGenres.sort((a,b) => {return b[1] - a[1]});
+        topGenres.sort((a, b) => {
+            return b[1] - a[1]
+        });
         /*console.log("Top Genres:");
         console.log(topGenres);*/
         topFour = [];
-        for(let i = 0; i < 4; i++) {
+        for (let i = 0; i < 4; i++) {
             topFour.push(topGenres[i][0]);
         }
 
@@ -246,9 +246,8 @@ async function setTopGenres(access_token, index, url_id) {
 
         set["players." + index + ".stats.top_genres"] = topFour;
 
-        client = await MongoClient.connect(process.env.DB_URL);
-        const db = client.db("SpotiCards");
-        db.collection("Games").updateOne({
+        const dbo = Connection.db.db("SpotiCards");
+        dbo.collection("Games").updateOne({
             url_id: url_id
         }, {
             $set: set
@@ -345,9 +344,8 @@ async function setTopFeats(access_token, index, url_id) {
         feat_set["players." + index + ".stats.popularity"] = avgPop;
 
         //connect to Mongodb and set feats for player
-        client = await MongoClient.connect(process.env.DB_URL);
-        const db = client.db("SpotiCards");
-        db.collection("Games").updateOne({
+        const dbo = Connection.db.db("SpotiCards");
+        dbo.collection("Games").updateOne({
             url_id: url_id
         }, {
             $set: feat_set
