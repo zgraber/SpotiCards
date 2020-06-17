@@ -3,7 +3,9 @@ var router = express.Router();
 var assert = require('assert');
 const game_helper = require('../helpers/game-helper');
 const question_helper = require('../helpers/questions');
-var {Connection} = require('../helpers/mongo');
+var {
+    Connection
+} = require('../helpers/mongo');
 var app = express();
 
 //Generates a 8 length alphanumeric url id
@@ -88,21 +90,62 @@ router.get('/:id/lobby', function (req, res) {
     collection.findOne({
         url_id: req.params.id
     }, function (err, result) {
-        if (err) console.log(err);
-        //console.log(result);
-        parms.gameCode = result.game_code;
-        if (result.players.length > 0) {
-            parms.active.players = true;
-            parms.players = result.players;
+        if (err) {
+            console.log(err);
+            res.next(err);
         }
-        console.log(parms);
-        res.render('lobby', parms);
+        if (err) res.next(err);
+
+        //If the game is active, redirect to the question view
+        if (result.game_state === 'active') {
+            res.redirect('/game/' + req.params.id);
+        //If the game has finished, redirect to game over screen
+        } else if (result.game_state === 'finished') {
+            res.redirect('/game/' + req.params.id + '/game_over');
+        } else if (result.game_state === 'created') {
+            parms.gameCode = result.game_code;
+            if (result.players.length > 0) {
+                parms.active.players = true;
+                parms.players = result.players;
+            }
+            res.render('lobby', parms);
+        //In the unlikely event the game state has an invalid value
+        } else {
+            let gameError = new Error('Game state value is not valid');
+            res.next(gameError);
+        }
+        
     });
 });
 
 //Renders the game question view
 router.get('/:id', function (req, res) {
-    res.render("question");
+    try {
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            url_id: req.params.id
+        }, function (err, result) {
+            if (err) res.next(err);
+            
+            if (result.game_state === 'active') {
+                res.render("question");
+            //If the game hasn't been initialized, redirect to lobby
+            } else if (result.game_state === 'created') {
+                res.redirect('/game/' + req.params.id + '/lobby');
+            //If the game has finished, redirect to game over screen
+            } else if (result.game_state === 'finished') {
+                res.redirect('/game/' + req.params.id + '/game_over');
+            //In the unlikely event the game state has an invalid value
+            } else {
+                let gameError = new Error('Game state value is not valid');
+                res.next(gameError);
+            }
+            
+        });
+    } catch(err) {
+        res.next(err);
+    }
 });
 
 router.get('/:id/authorize', function (req, res) {
@@ -173,6 +216,12 @@ router.put('/:id/init', async function (req, res) {
     let r = await collection.findOne({
         url_id: req.params.id
     });
+
+    //If game has already been initialized
+    if (r.game_state === 'active') {
+        let err = new Error('Game already initialized');
+        res.next(err);
+    }
     let numPlayers = r.players.length;
 
     //TODO: Add game parameters for customization (ex: number of questions)
@@ -214,12 +263,8 @@ router.get('/:id/question', (req, res) => {
         url_id: req.params.id
     }, async function (err, result) {
         if (err) res.next(err);
-        console.log(result);
-        //If the game hasn't been initialized, redirect to lobby
-        if (result.game_state !== 'active' /*|| result.players.length < 1*/ ) {
-            console.log('Game not initalized');
-            res.redirect('/game/' + req.params.id + '/lobby');
-        }
+        //console.log(result);
+
         var question_id = result.question_ids[result.active_question];
         var options = result.options[result.active_question];
         let players = result.players;
@@ -270,8 +315,19 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/:id/game_over', function (req, res) {
-    res.render("end");
+router.get('/:id/game_over', async function (req, res) {
+    const dbo = Connection.db.db("SpotiCards");
+    var collection = dbo.collection('Games');
+    let r = await collection.findOne({
+        url_id: req.params.id
+    });
+    if (r.game_state === 'created') {
+        res.redirect('/game/' + req.params.id + '/lobby');
+    } else if (r.game_state === 'finished') {
+        res.render("end"); 
+    } else if (r.game_state === 'active') {
+        res.redirect('/game/' + req.params.id);
+    }
 });
 
 module.exports = router;

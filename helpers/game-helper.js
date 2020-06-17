@@ -33,8 +33,19 @@ function incrementQuestion(url_id, callback) {
         url_id: url_id
     }, function (err, game) {
         let num_questions = game.question_ids.length;
+        //If no more questions
         if (game.active_question + 1 >= num_questions) {
-            callback(false);
+            collection.updateOne({
+                url_id: url_id
+            }, {
+                $set: {
+                    updated_at: new Date(Date.now()),
+                    game_state: 'completed'
+                }
+            }, function (err, result) {
+                if (err || result === null) throw (err);
+                callback(false);
+            });
         }
 
         collection.updateOne({
