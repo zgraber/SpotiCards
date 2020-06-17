@@ -166,8 +166,6 @@ async function initPlayers(url_id) {
         } catch (err) {
             console.log(err);
             reject(err);
-        } finally {
-            client.close();
         }
     });
 }

@@ -1,8 +1,7 @@
 var socket = io();
-var points = 0;
 var score = 0;
 
-getQuestionInfo = () => {
+var getQuestionInfo = () => {
     url = window.location.href + '/question';
     $.ajax({
         url: url,
@@ -29,7 +28,19 @@ getQuestionInfo = () => {
     });
 }
 
-answerSubmit = (event) => {
+var getScore =  (callback) => {
+    url = window.location.href + '/score';
+    $.ajax({
+        url: url,
+        success: (result) => {
+            console.log("Score retrieved: ");
+            console.log(result.score);
+            callback(result.score);
+        }
+    });
+};
+
+var answerSubmit = (event) => {
     disableAnswers();
     let index = $(".btn-options").index($(event.target));
     event.preventDefault();
@@ -38,14 +49,17 @@ answerSubmit = (event) => {
     socket.emit('answer submit', {answer: index, url_id: id});
 };
 
-// Makes buttons unclickable and TODO: turns the correct answer a different color from the others
-disableAnswers = () => {
+// Makes buttons unclickable
+var disableAnswers = () => {
     $("button").prop("disabled", true);
 }
 
 $(document).ready(()=>{
     $("#res-dismiss").hide();
-    $("#score").text(score);
+    getScore(function(result){
+        score = result;
+        $("#score").text(score);
+    });
     getQuestionInfo();
     socket.on('answer result', (data)=> {
         // correct_answer <-- the index of the corrrect answer
