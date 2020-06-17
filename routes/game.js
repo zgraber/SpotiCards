@@ -341,7 +341,7 @@ router.get('/:id/game_over', async function (req, res) {
     if (r.game_state === 'created') {
         res.redirect('/game/' + req.params.id + '/lobby');
     } else if (r.game_state === 'finished') {
-        res.render("end");
+        res.render("end", {score: r.score});
     } else if (r.game_state === 'active') {
         res.redirect('/game/' + req.params.id);
     }
