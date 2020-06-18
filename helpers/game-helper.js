@@ -15,8 +15,21 @@ function verifyAnswer(answer, url_id, ) {
             let active_question = result.active_question;
             let answers = result.answers;
             let correctAnswer = answers[active_question];
+            let outcome = (answer === correctAnswer);
+            if (outcome) {
+                //increment the score
+                collection.updateOne({
+                    url_id: url_id
+                }, {
+                    $inc: {
+                        score: 1
+                    }
+                }, function(err, callback) {
+                    console.log('Score incremented');
+                });
+            }
             resolve({
-                result: (answer === answers[active_question]),
+                result: outcome,
                 correct_answer: correctAnswer
             });
 
@@ -33,8 +46,19 @@ function incrementQuestion(url_id, callback) {
         url_id: url_id
     }, function (err, game) {
         let num_questions = game.question_ids.length;
+        //If no more questions
         if (game.active_question + 1 >= num_questions) {
-            callback(false);
+            collection.updateOne({
+                url_id: url_id
+            }, {
+                $set: {
+                    updated_at: new Date(Date.now()),
+                    game_state: 'finished'
+                }
+            }, function (err, result) {
+                if (err || result === null) throw (err);
+                callback(false);
+            });
         }
 
         collection.updateOne({
