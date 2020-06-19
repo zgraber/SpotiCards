@@ -21,6 +21,29 @@ function loadPlayerNames() {
     });
 }
 
+//return the options in an object
+function getOptions() {
+    let numQuestions = $('#num-questions option:selected').text();
+    let timeRange = $('#time-range option:selected').text();
+    switch(timeRange) {
+        case 'Short Term':
+            timeRange = 'short_term';
+            break;
+        case 'Medium Term':
+            timeRange = 'medium_term';
+            break;
+        case 'Long Term': 
+            timeRange = 'long_term';
+            break;
+        default:
+            timeRange = 'medium_term';
+            break;
+    }
+    return {
+        numQuestions: parseInt(numQuestions, 10),
+        timeRange: timeRange
+    };
+}
 
 
 $(document).ready(() => {
@@ -34,6 +57,7 @@ $(document).ready(() => {
         let url = window.location.origin + '/game/' + id + '/init';
         $.ajax({
             url: url,
+            data: getOptions(),
             type: 'PUT',
             success: (result) => {
                 if (result) {

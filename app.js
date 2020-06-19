@@ -95,6 +95,8 @@ io.on("connection", (socket) => {
     });
 });
 
-//Establish connection to enable pooling
-Connection.connectToMongo();
-server.listen(port, () => console.log(`Habitune running at http://localhost:${port}`))
+server.listen(port, () => {
+    console.log(`Habitune running at http://localhost:${port}`);
+    //Establish connection to enable pooling
+    Connection.connectToMongo();
+});
