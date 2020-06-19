@@ -254,8 +254,8 @@ router.put('/:id/init', async function (req, res, next) {
     }, function (err, result) {
         if (err) return next(err);
         console.log("Initialized Game " + req.params.id);
-        //Redirect to game view
-        res.redirect('/game/' + req.params.id);
+        //send back result to show game has been initialized
+        res.json(result);
     });
 });
 

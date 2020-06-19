@@ -21,9 +21,32 @@ function loadPlayerNames() {
     });
 }
 
+
+
 $(document).ready(() => {
     $("#player-list").hide();
     loadPlayerNames();
+
+    $('#init-game').submit((event) => {
+        event.preventDefault();
+    
+        let id = window.location.pathname.split('/')[2];
+        let url = window.location.origin + '/game/' + id + '/init';
+        $.ajax({
+            url: url,
+            type: 'PUT',
+            success: (result) => {
+                if (result) {
+                    console.log(result);
+                    window.location.replace(window.location.origin + '/game/' + id);
+                    return false;
+                } else {
+                    console.log("Uh oh. Something's up");
+                }
+            }
+        });
+    });
+    
     socket.emit('register screen', {
         game_code: $('#game-code').text()
     });

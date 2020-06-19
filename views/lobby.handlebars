@@ -5,12 +5,14 @@
     <h3 id="game-code">{{gameCode}}</h3>
   </div>
   <div class="lobby">
-    <a href="/">
-      <h1 id="title">
-        <img id="title-img" src="/img/habitune.png" alt="logo"/>Habitune
-      </h1>
-    </a>
-    
+    <div id="title-box">
+      <a href="/">
+        <h1 id="title">
+          <img id="title-img" src="/img/habitune.png" alt="logo" />Habitune
+        </h1>
+      </a>
+    </div>
+
     <div class="card">
       <div class="card-body">
         <h5 class="card-title">Lobby:</h5>
@@ -20,14 +22,28 @@
     </div>
 
     <div class="lobby-ctrls">
-      <!--
-      <form action="/authorize" method="get" class="inline-form">
-        <input type="submit" value="Add Player" name="add_player_btn" id="add_player_btn" class="btn btn-primary" />
-      </form> 
-      -->
-
-      <form id="init-game" action="/game/{{id}}/init?_method=PUT" method="POST" class="inline-form">
-        <input type="hidden" name="_method" value="PUT">
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Options:</h5>
+          <form>
+            <div class="form-group" id="game-options">
+              <label for="num-question">Number of Questions:</label>
+              <select class="form-control" id="num-questions">
+                <option>10</option>
+                <option>5</option>
+              </select>
+              <label for="time-range">Time Range:</label>
+              <select class="form-control " id="time-range">
+                <option>Medium Term</option>
+                <option>Short Term</option>
+                <option>Long Term</option>
+              </select>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- PUT, NOT POST, REQUEST -->
+      <form id="init-game" class="inline-form">
         <input type="submit" value="Start Game" id="start_game_btn" class="btn btn-primary" />
       </form>
     </div>
