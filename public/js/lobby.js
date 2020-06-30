@@ -57,7 +57,8 @@ $(document).ready(() => {
         let url = window.location.origin + '/game/' + id + '/init';
         $.ajax({
             url: url,
-            data: getOptions(),
+            data: JSON.stringify(getOptions()),
+            contentType: 'application/json',
             type: 'PUT',
             success: (result) => {
                 if (result) {

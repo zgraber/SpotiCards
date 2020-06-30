@@ -31,7 +31,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
+app.use(express.json());
 
 // Set view engine
 app.set('views', path.join(__dirname, 'views'));

@@ -227,13 +227,13 @@ router.put('/:id/init', async function (req, res, next) {
         return next(err);
     }
     let numPlayers = r.players.length;
-    let options = req.body;
+    let params = req.body;
 
-    let questionAmount = options.numQuestions;
+    let questionAmount = params.numQuestions;
     let question_ids = await getRandomQuestions(questionAmount, numPlayers);
 
     //TODO: Error catch all of these
-    let outcome = await question_helper.initPlayers(req.params.id, options.timeRange);
+    let outcome = await question_helper.initPlayers(req.params.id, params.timeRange);
 
     let options = await question_helper.getOptions(question_ids, req.params.id);
 
