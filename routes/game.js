@@ -72,6 +72,10 @@ async function getRandomQuestions(size, numPlayers) {
     });
 }
 
+router.get('/player', function(req, res) {
+    res.render('player_view');
+});
+
 //Renders the lobby with the players authenticated
 router.get('/:id/lobby', function (req, res, next) {
     let parms = {

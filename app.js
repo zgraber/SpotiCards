@@ -74,7 +74,8 @@ io.on("connection", (socket) => {
     })
 
     socket.on('join room', (data)=>{
-        room = data.game_code;
+        let room = data.game_code;
+        socket.username = data.player_name;
         socket.join(room);
         console.log(data.player_name + ' has joined room ' + data.game_code);
         io.to(room).emit('player join', {player_name: data.player_name});

@@ -111,7 +111,7 @@ router.get('/callback', (req, res, next) => {
                         
                         res.clearCookie('player_name');
                         res.cookie('player_name', player.player_name);
-                        res.redirect('/join/confirm');
+                        res.redirect('/game/player');
                     } else {
                         const error = new Error('Invalid Token');
                         error.httpStatusCode = 500;
