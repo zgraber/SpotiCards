@@ -143,7 +143,7 @@ async function getAnswers(question_ids, options, url_id) {
     });
 }
 
-async function initPlayers(url_id) {
+async function initPlayers(url_id, time_range) {
     return new Promise(async function (resolve, reject) {
         try {
             var promises = [];
@@ -155,9 +155,9 @@ async function initPlayers(url_id) {
             //console.log(game);
             let players = game.players;
             for (var i = 0; i < players.length; i++) {
-                promises.push(setTopFeats(players[i].access_token, i, url_id));
-                promises.push(setTopArtists(players[i].access_token, i, url_id));
-                promises.push(setTopGenres(players[i].access_token, i, url_id));
+                promises.push(setTopFeats(players[i].access_token, i, url_id, time_range));
+                promises.push(setTopArtists(players[i].access_token, i, url_id, time_range));
+                promises.push(setTopGenres(players[i].access_token, i, url_id, time_range));
             }
             console.log("DONE INIT");
             Promise.all(promises).then(() => {
@@ -170,7 +170,7 @@ async function initPlayers(url_id) {
     });
 }
 
-async function setTopArtists(access_token, index, url_id) {
+async function setTopArtists(access_token, index, url_id, time_range) {
     return new Promise(async (resolve, reject) => {
         //Request options
         var options = {
@@ -178,7 +178,8 @@ async function setTopArtists(access_token, index, url_id) {
                 'Authorization': 'Bearer ' + access_token
             }
         };
-        let response = await fetch('https://api.spotify.com/v1/me/top/artists?limit=4&time_range=long_term', options);
+        let url = 'https://api.spotify.com/v1/me/top/artists?limit=4&time_range=' + time_range;
+        let response = await fetch(url, options);
         let data = await response.json();
         let topArtists = data.items;
         let artistNames = [];
@@ -200,7 +201,7 @@ async function setTopArtists(access_token, index, url_id) {
     });
 }
 
-async function setTopGenres(access_token, index, url_id) {
+async function setTopGenres(access_token, index, url_id, time_range) {
     return new Promise(async (resolve, reject) => {
         //Request options
         var options = {
@@ -209,8 +210,9 @@ async function setTopGenres(access_token, index, url_id) {
             }
         };
 
+        let url = 'https://api.spotify.com/v1/me/top/artists?limit=50&time_range=' + time_range;
         //Get all the top 50 songs' ids
-        let response = await fetch('https://api.spotify.com/v1/me/top/artists?limit=50&time_range=long_term', options);
+        let response = await fetch(url, options);
         let data = await response.json();
         let topArtists = data.items;
 
@@ -254,7 +256,7 @@ async function setTopGenres(access_token, index, url_id) {
     });
 }
 
-async function setTopFeats(access_token, index, url_id) {
+async function setTopFeats(access_token, index, url_id, time_range) {
     return new Promise(async (resolve, reject) => {
 
         //Request options
@@ -275,8 +277,9 @@ async function setTopFeats(access_token, index, url_id) {
             tempo: 0.0
         };
 
+        let url = 'https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=' + time_range;
         //Get all the top 50 songs' ids
-        let response = await fetch('https://api.spotify.com/v1/me/top/tracks?limit=50&time_range=medium_term', options);
+        let response = await fetch(url, options);
         let data = await response.json();
         let topSongs = data.items;
         let songIds = [];

@@ -227,13 +227,13 @@ router.put('/:id/init', async function (req, res, next) {
         return next(err);
     }
     let numPlayers = r.players.length;
+    let params = req.body;
 
-    //TODO: Add game parameters for customization (ex: number of questions)
-    let questionAmount = 10;
+    let questionAmount = params.numQuestions;
     let question_ids = await getRandomQuestions(questionAmount, numPlayers);
 
     //TODO: Error catch all of these
-    let outcome = await question_helper.initPlayers(req.params.id);
+    let outcome = await question_helper.initPlayers(req.params.id, params.timeRange);
 
     let options = await question_helper.getOptions(question_ids, req.params.id);
 
@@ -254,8 +254,8 @@ router.put('/:id/init', async function (req, res, next) {
     }, function (err, result) {
         if (err) return next(err);
         console.log("Initialized Game " + req.params.id);
-        //Redirect to game view
-        res.redirect('/game/' + req.params.id);
+        //send back result to show game has been initialized
+        res.json(result);
     });
 });
 

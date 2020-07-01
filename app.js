@@ -31,7 +31,8 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-app.use(methodOverride('_method'))
+app.use(methodOverride('_method'));
+app.use(express.json());
 
 // Set view engine
 app.set('views', path.join(__dirname, 'views'));
@@ -95,6 +96,8 @@ io.on("connection", (socket) => {
     });
 });
 
-//Establish connection to enable pooling
-Connection.connectToMongo();
-server.listen(port, () => console.log(`Habitune running at http://localhost:${port}`))
+server.listen(port, () => {
+    console.log(`Habitune running at http://localhost:${port}`);
+    //Establish connection to enable pooling
+    Connection.connectToMongo();
+});

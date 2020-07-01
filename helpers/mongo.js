@@ -7,8 +7,8 @@ class Connection {
         if (this.db) return this.db;
         this.db = new MongoClient(process.env.DB_URL, this.options);
         await this.db.connect();
-        //console.log(this.db);
-        return this.db;
+        console.log('Database Connected');
+        return (this.db);
     }
 }
 
