@@ -99,7 +99,8 @@ router.get('/callback', (req, res, next) => {
 
                         var dbo = Connection.db.db('SpotiCards');
                         var collection = dbo.collection('Games');
-                        collection.updateOne({url_id: req.cookies['url_id']}, { 
+                        //TODO: If no cookie, throw an error
+                        collection.updateOne({game_code: req.cookies['game_code']}, { 
                             $addToSet: {players: player}, 
                             $set: {updated_at: new Date(Date.now())}
                         },
@@ -108,7 +109,6 @@ router.get('/callback', (req, res, next) => {
                             console.log("Added player " + player.player_name + " to db");
                         });
                         
-                        //res.redirect('/game/' + req.cookies['url_id'] + '/lobby');
                         res.clearCookie('player_name');
                         res.cookie('player_name', player.player_name);
                         res.redirect('/join/confirm');

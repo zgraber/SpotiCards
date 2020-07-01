@@ -74,8 +74,6 @@ async function getRandomQuestions(size, numPlayers) {
 
 //Renders the lobby with the players authenticated
 router.get('/:id/lobby', function (req, res, next) {
-    res.clearCookie('url_id');
-    res.cookie('url_id', req.params.id);
     let parms = {
         title: 'Lobby',
         active: {
@@ -149,12 +147,6 @@ router.get('/:id', function (req, res, next) {
     } catch (err) {
         return next(err);
     }
-});
-
-router.get('/:id/authorize', function (req, res) {
-    res.clearCookie('url_id');
-    res.cookie('url_id', req.params.id);
-    res.redirect('/authorize');
 });
 
 //Get player names
