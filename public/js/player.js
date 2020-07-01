@@ -18,6 +18,10 @@ function getCookie(cname) {
 
 var player_name = getCookie('player_name');
 var game_code = getCookie('game_code');
+if (player_name === "" || game_code === "") {
+    console.log('player_name and/or game_code not found in cookies');
+    window.location.replace(window.location.origin);
+}
 
 $(document).ready(() => {
     socket.emit('join room', {

@@ -100,6 +100,9 @@ router.get('/callback', (req, res, next) => {
                         var dbo = Connection.db.db('SpotiCards');
                         var collection = dbo.collection('Games');
                         //TODO: If no cookie, throw an error
+                        if (!req.cookies['game_code']) {
+                           return next(new Error('There was a problem with your game code. Make sure you\'re joining from the join screen.'));
+                        }
                         collection.updateOne({game_code: req.cookies['game_code']}, { 
                             $addToSet: {players: player}, 
                             $set: {updated_at: new Date(Date.now())}
