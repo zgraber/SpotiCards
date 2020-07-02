@@ -2,7 +2,7 @@ var socket = io();
 var score = 0;
 
 var getQuestionInfo = () => {
-    url = window.location.href + '/question';
+    url = window.location.href.split('?')[0] + 'question';
     $.ajax({
         url: url,
         success: (result) => {
@@ -29,7 +29,7 @@ var getQuestionInfo = () => {
 }
 
 var getScore =  (callback) => {
-    url = window.location.href + '/score';
+    url = window.location.href.split('?')[0] + 'score';
     $.ajax({
         url: url,
         success: (result) => {
