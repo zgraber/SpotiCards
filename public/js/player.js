@@ -29,6 +29,14 @@ $(document).ready(() => {
         game_code
     });
     socket.on('game-question', (data) => {
+        //Change view to options
         console.log(data);
+        for (let i=0; i < data.options.length; i++) {
+            $('<button></button>', {
+                id: ('option' + i),
+                class: "btn btn-primary btn-options",
+                text: data.options[i],
+            }).appendTo('#options');
+        }
     });
 });

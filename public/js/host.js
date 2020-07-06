@@ -16,13 +16,10 @@ var getQuestionInfo = () => {
             $("#question-text").text(result.question_text);
             $("#options").empty();
             for (let i=0; i < result.options.length; i++) {
-                $('<button></button>', {
+                $('<h1></h1>', {
                     id: ('option' + i),
                     class: "btn btn-primary btn-options",
-                    text: result.options[i],
-                    on: {
-                        click: answerSubmit
-                    }
+                    text: result.options[i]
                 }).appendTo('#options');
             }
         }
@@ -72,13 +69,13 @@ $(document).ready(()=>{
         $("#question-text").text(data.question_text);
         $("#options").empty();
         for (let i=0; i < data.options.length; i++) {
-            $('<button></button>', {
+            $('<h4></h4>', {
                 id: ('option' + i),
-                class: "btn btn-primary btn-options",
+                class: "host-option",
                 text: data.options[i],
                 on: {
                     click: answerSubmit
-                }
+                },
             }).appendTo('#options');
         }
     });
