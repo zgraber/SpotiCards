@@ -81,6 +81,14 @@ io.on("connection", (socket) => {
         io.to(room).emit('player join', {player_name: data.player_name});
     });
 
+    socket.on('host-game-join', async (data) => {
+        let room = data.game_code;
+        socket.join(room);
+        console.log('Host has joined game view for ' + room);
+        let questionData = await game_helper.getCurrentQuestion(room);
+        io.to(room).emit('game-question', questionData);
+    })
+
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });

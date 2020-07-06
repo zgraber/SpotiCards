@@ -28,4 +28,7 @@ $(document).ready(() => {
         player_name,
         game_code
     });
+    socket.on('game-question', (data) => {
+        console.log(data);
+    });
 });

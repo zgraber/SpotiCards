@@ -1,5 +1,6 @@
 var socket = io();
 var score = 0;
+var gameCode = getParameterByName('game_code');
 
 var getQuestionInfo = () => {
     url = window.location.href.split('?')[0] + 'question';
@@ -29,7 +30,7 @@ var getQuestionInfo = () => {
 }
 
 var getScore =  (callback) => {
-    url = window.location.href.split('?')[0] + 'score';
+    url = window.location.href.split('?')[0] + '/score';
     $.ajax({
         url: url,
         success: (result) => {
@@ -60,7 +61,27 @@ $(document).ready(()=>{
         score = result;
         $("#score").text(score);
     });
-    getQuestionInfo();
+    socket.emit('host-game-join', {game_code: gameCode});
+    //getQuestionInfo();
+    socket.on('game-question', (data) => {
+        $("#result-box").text("")
+        $("#result-box").css("background-color", "");
+        $("#res-dismiss").hide();
+
+        $("#question-header").text("Question " + data.question_number);
+        $("#question-text").text(data.question_text);
+        $("#options").empty();
+        for (let i=0; i < data.options.length; i++) {
+            $('<button></button>', {
+                id: ('option' + i),
+                class: "btn btn-primary btn-options",
+                text: data.options[i],
+                on: {
+                    click: answerSubmit
+                }
+            }).appendTo('#options');
+        }
+    });
     socket.on('answer result', (data)=> {
         // correct_answer <-- the index of the corrrect answer
         var index = data.correct_answer;
@@ -99,4 +120,14 @@ $(document).ready(()=>{
     });
 });
 
+
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
 // .btn-primary: disabled {background-color: #007bff}
