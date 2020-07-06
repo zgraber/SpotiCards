@@ -134,6 +134,11 @@ body {
     width: 80%;
 }
 
+#player-options {
+    display: block;
+    text-align: center;
+}
+
 .btn {
     position: relative;
     font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
@@ -143,6 +148,13 @@ body {
     background-color: #1DB954;
     border-color: #1DB954;
     display: inline-block;
+}
+
+.btn-options {
+    display: block;
+    margin: auto;
+    margin-bottom: 5px;
+    width: 80%
 }
 
 .host-option {

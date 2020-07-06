@@ -40,12 +40,13 @@ $(document).ready(() => {
         //Change view to options
         console.log(data);
         $('#join-confirm').hide();
+        $('#player-options').empty();
         for (let i=0; i < data.options.length; i++) {
             $('<button></button>', {
                 id: ('option' + i),
-                class: "btn btn-primary btn-options",
+                class: "btn btn-primary btn-lg btn-options",
                 text: data.options[i],
-            }).appendTo('#options');
+            }).appendTo('#player-options');
         }
     });
 });
