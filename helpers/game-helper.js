@@ -1,4 +1,6 @@
-var {Connection} = require('./mongo');
+var {
+    Connection
+} = require('./mongo');
 
 function verifyAnswer(answer, url_id, ) {
     return new Promise(function (resolve, reject) {
@@ -24,7 +26,7 @@ function verifyAnswer(answer, url_id, ) {
                     $inc: {
                         score: 1
                     }
-                }, function(err, callback) {
+                }, function (err, callback) {
                     console.log('Score incremented');
                 });
             }
@@ -35,6 +37,44 @@ function verifyAnswer(answer, url_id, ) {
 
         });
     })
+}
+
+async function getCurrentQuestion(game_code) {
+    return new Promise(function (resolve, reject) {
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        console.log(game_code);
+        collection.findOne({
+            game_code: game_code
+        }, async function (err, result) {
+            if (err) next(err);
+
+            var question_id = result.question_ids[result.active_question];
+            var options = result.options[result.active_question];
+            let players = result.players;
+
+            let question = await dbo.collection("Questions").findOne({
+                question_id: question_id
+            });
+            var question_text = question.text;
+
+            //For top artist questions
+            if (question_text.includes('Player1')) {
+                question_text = question_text.replace('Player1', players[0].player_name);
+            } else if (question_text.includes('Player2')) {
+                question_text = question_text.replace('Player2', players[1].player_name);
+            } else if (question_text.includes('Player3')) {
+                question_text = question_text.replace('Player3', players[2].player_name);
+            } else if (question_text.includes('Player4')) {
+                question_text = question_text.replace('Player4', players[3].player_name);
+            }
+            resolve({
+                question_text: question_text,
+                question_number: result.active_question + 1,
+                options: options
+            });
+        });
+    });
 }
 
 //TODO: update this so when there are no more questions, it changes state of game
@@ -117,3 +157,4 @@ exports.verifyAnswer = verifyAnswer;
 exports.incrementQuestion = incrementQuestion;
 exports.getPlayerNames = getPlayerNames;
 exports.getPlayerStats = getPlayerStats;
+exports.getCurrentQuestion = getCurrentQuestion;

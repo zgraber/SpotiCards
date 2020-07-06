@@ -123,11 +123,25 @@ router.get('/:id/lobby', function (req, res, next) {
 
 });
 
+router.get('/:id/score', function (req, res, next) {
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        url_id: req.params.id
+    }, async function (err, result) {
+        if (err || result === null) next(err);
+        res.json({
+            score: result.score
+        });
+    });
+});
+
 //Renders the game question view
 router.get('/:id', function (req, res, next) {
     try {
         var dbo = Connection.db.db('SpotiCards');
         var collection = dbo.collection('Games');
+        console.log(req.params.id);
         collection.findOne({
             url_id: req.params.id
         }, function (err, result) {
@@ -292,18 +306,7 @@ router.get('/:id/question', (req, res, next) => {
     });
 });
 
-router.get('/:id/score', function (req, res, next) {
-    var dbo = Connection.db.db('SpotiCards');
-    var collection = dbo.collection('Games');
-    collection.findOne({
-        url_id: req.params.id
-    }, async function (err, result) {
-        if (err || result === null) next(err);
-        res.json({
-            score: result.score
-        });
-    });
-});
+
 
 //Get game by Game code
 router.get('/', (req, res, next) => {

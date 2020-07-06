@@ -115,6 +115,21 @@ body {
     display: inline-block;
 }
 
+.host-option {
+    position: relative;
+    font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    top: 5px;
+    background-color: #1DB954;
+    border-color: #1DB954;
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
 .menu {
     position: fixed;
     top: 40%;
