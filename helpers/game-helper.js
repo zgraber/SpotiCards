@@ -43,11 +43,10 @@ async function getCurrentQuestion(game_code) {
     return new Promise(function (resolve, reject) {
         var dbo = Connection.db.db('SpotiCards');
         var collection = dbo.collection('Games');
-        console.log(game_code);
         collection.findOne({
             game_code: game_code
         }, async function (err, result) {
-            if (err) next(err);
+            if (err) reject(err);
 
             var question_id = result.question_ids[result.active_question];
             var options = result.options[result.active_question];
@@ -73,6 +72,21 @@ async function getCurrentQuestion(game_code) {
                 question_number: result.active_question + 1,
                 options: options
             });
+        });
+    });
+}
+
+//Returns the state of the game
+async function getGameState(game_code) {
+    return new Promise(function (resolve, reject) {
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            game_code: game_code
+        }, async function (err, result) {
+            if (err) next(err);
+
+            resolve(result.game_state);
         });
     });
 }
@@ -158,3 +172,4 @@ exports.incrementQuestion = incrementQuestion;
 exports.getPlayerNames = getPlayerNames;
 exports.getPlayerStats = getPlayerStats;
 exports.getCurrentQuestion = getCurrentQuestion;
+exports.getGameState = getGameState;
