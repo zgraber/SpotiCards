@@ -41,6 +41,11 @@ $(document).ready(() => {
         console.log(data);
         $('#join-confirm').hide();
         $('#player-options').empty();
+        $('#question-num').empty();
+        $('<span></span>', {
+            text: 'Q'+ data.question_number,
+        }).appendTo('#question-num');
+
         for (let i=0; i < data.options.length; i++) {
             $('<button></button>', {
                 id: ('option' + i),
