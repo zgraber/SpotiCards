@@ -24,6 +24,14 @@ if (player_name === "" || game_code === "") {
 }
 
 $(document).ready(() => {
+    $('<span></span>', {
+        text: 'Code: ' + game_code,
+    }).appendTo('#bar-game-code');
+
+    $('<span></span>', {
+        text: player_name,
+    }).appendTo('#player-name');
+
     socket.emit('join room', {
         player_name,
         game_code
@@ -31,12 +39,19 @@ $(document).ready(() => {
     socket.on('game-question', (data) => {
         //Change view to options
         console.log(data);
+        $('#join-confirm').hide();
+        $('#player-options').empty();
+        $('#question-num').empty();
+        $('<span></span>', {
+            text: 'Q'+ data.question_number,
+        }).appendTo('#question-num');
+
         for (let i=0; i < data.options.length; i++) {
             $('<button></button>', {
                 id: ('option' + i),
-                class: "btn btn-primary btn-options",
+                class: "btn btn-primary btn-lg btn-options",
                 text: data.options[i],
-            }).appendTo('#options');
+            }).appendTo('#player-options');
         }
     });
 });
