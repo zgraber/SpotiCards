@@ -79,6 +79,11 @@ $(document).ready(()=>{
             }).appendTo('#options');
         }
     });
+
+    socket.on('player-answer-confirm', (data) => {
+        console.log(data.player_name + ' has answered');
+    });
+
     socket.on('answer result', (data)=> {
         // correct_answer <-- the index of the corrrect answer
         var index = data.correct_answer;

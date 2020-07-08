@@ -2,41 +2,67 @@ var {
     Connection
 } = require('./mongo');
 
-function verifyAnswer(answer, url_id, ) {
+//Used internally only
+function findWithAttr(array, attr, value) {
+    for (var i = 0; i < array.length; i += 1) {
+        if (array[i][attr] === value) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+//If players answer was correct, increment their score
+function checkAnswer(game_code, player_name, answer) {
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        game_code: game_code
+    }, function (err, result) {
+        if (err) {
+            console.log("Could not find game!");
+            throw (err);
+        }
+
+        let active_question = result.active_question;
+        let answers = result.answers;
+        let correctAnswer = answers[active_question];
+        let outcome = (answer === correctAnswer);
+        if (outcome) {
+            let indexOfPlayer = findWithAttr(result.players, 'player_name', player_name);
+            let set = {}
+            set['players.' + indexOfPlayer + '.player_score'] = 1;
+            //increment the score of the player
+            collection.updateOne({
+                game_code: game_code
+            }, {
+                $inc: set
+            }, function (err, callback) {
+                console.log('Score incremented for ' + player_name);
+            });
+        }
+    });
+}
+
+//Returns true when all players have answered
+async function checkStatuses(game_code) {
     return new Promise(function (resolve, reject) {
         var dbo = Connection.db.db('SpotiCards');
         var collection = dbo.collection('Games');
         collection.findOne({
-            url_id: url_id
-        }, function (err, result) {
-            if (err) {
-                console.log("Could not find game!");
-                reject(err);
+            game_code: game_code
+        }, async function (err, result) {
+            if (err) reject(err);
+            let numPlayers = result.players.length;
+            let answerCount = 0;
+            for (let i = 0; i < numPlayers; i++) {
+                if (result.players[i].status === 'answered') {
+                    answerCount++;
+                }
             }
-            console.log(result.answers);
-            let active_question = result.active_question;
-            let answers = result.answers;
-            let correctAnswer = answers[active_question];
-            let outcome = (answer === correctAnswer);
-            if (outcome) {
-                //increment the score
-                collection.updateOne({
-                    url_id: url_id
-                }, {
-                    $inc: {
-                        score: 1
-                    }
-                }, function (err, callback) {
-                    console.log('Score incremented');
-                });
-            }
-            resolve({
-                result: outcome,
-                correct_answer: correctAnswer
-            });
-
+            resolve(answerCount === numPlayers);
         });
-    })
+    });
 }
 
 async function getCurrentQuestion(game_code) {
@@ -84,14 +110,46 @@ async function getGameState(game_code) {
         collection.findOne({
             game_code: game_code
         }, async function (err, result) {
-            if (err) next(err);
+            if (err) reject(err);
 
             resolve(result.game_state);
         });
     });
 }
 
-//TODO: update this so when there are no more questions, it changes state of game
+//Set one player's or all players' statuses
+async function setPlayerStatus(game_code, newStatus, player_name = undefined, callback) {
+    return new Promise(function (resolve, reject) {
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            game_code: game_code
+        }, function (err, result) {
+            if (err) reject(err);
+            let numPlayers = result.players.length;
+            let set = {};
+            //If a player name was specified, only change that player
+            if (player_name) {
+                let indexOfPlayer = findWithAttr(result.players, 'player_name', player_name);
+                set['players.' + indexOfPlayer + '.status'] = newStatus;
+            } else {
+                //If no player name was specified, change all player statuses
+                for (let i = 0; i < numPlayers; i++) {
+                    set["players." + i + ".status"] = newStatus;
+                }
+            }
+
+            collection.updateOne({
+                game_code: game_code
+            }, {
+                $set: set
+            }, function(err, result) {
+                resolve();
+            });
+        });
+    });
+}
+
 function incrementQuestion(url_id, callback) {
     var dbo = Connection.db.db('SpotiCards');
     var collection = dbo.collection('Games');
@@ -167,9 +225,11 @@ async function getPlayerStats(index, url_id) {
     });
 }
 
-exports.verifyAnswer = verifyAnswer;
+exports.checkAnswer = checkAnswer;
 exports.incrementQuestion = incrementQuestion;
 exports.getPlayerNames = getPlayerNames;
 exports.getPlayerStats = getPlayerStats;
 exports.getCurrentQuestion = getCurrentQuestion;
 exports.getGameState = getGameState;
+exports.setPlayerStatus = setPlayerStatus;
+exports.checkStatuses = checkStatuses;

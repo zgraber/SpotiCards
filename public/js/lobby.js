@@ -72,9 +72,10 @@ $(document).ready(() => {
         });
     });
     
-    socket.emit('register screen', {
+    socket.emit('host-lobby-join', {
         game_code: $('#game-code').text()
     });
+    
     socket.on('player join', (data) => {
         if ($("#no-players").is(":visible")) {
             $('#no-players').hide();

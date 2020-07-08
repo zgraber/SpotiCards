@@ -1,4 +1,5 @@
 var socket = io();
+var playerChoice = -1;
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -15,13 +16,23 @@ function getCookie(cname) {
     }
     return "";
 }
-
 var player_name = getCookie('player_name');
 var game_code = getCookie('game_code');
+
 if (player_name === "" || game_code === "") {
     console.log('player_name and/or game_code not found in cookies');
     window.location.replace(window.location.origin);
 }
+
+var answerSubmit = (event) => {
+    let index = $(".btn-options").index($(event.target));
+    //Set the global playerChoice to verify answer later
+    playerChoice = index;
+    //event.preventDefault();
+    //Emit player-answer to the server
+    socket.emit('player-answer', {answer: index, game_code: game_code, player_name: player_name});
+    //TODO: Change player screen to a confirmation message
+};
 
 $(document).ready(() => {
     $('<span></span>', {
@@ -51,6 +62,9 @@ $(document).ready(() => {
                 id: ('option' + i),
                 class: "btn btn-primary btn-lg btn-options",
                 text: data.options[i],
+                on: {
+                    click: answerSubmit
+                }
             }).appendTo('#player-options');
         }
     });
