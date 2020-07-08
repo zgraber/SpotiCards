@@ -4,18 +4,24 @@
 
   </div>
   <div id='question-num'>
-    <span>Q1</span>
+    <span>Q{{questionNum}}</span>
   </div>
 </div>
 
 <div class="player-game game">
+
+    {{#unless active}}
     <div class="card" id="join-confirm">
       <div class="card-body">
         <h5 class="card-title">Join Confirmed. Your name should be on the screen.</h5>
       </div>
     </div>
-    <div id="player-options">
+    {{/unless}}
 
+    <div id="player-options">
+      {{#each options}}
+        <button id="option{{@index}}" class="btn btn-primary btn-lg btn-options">{{this}}</button>
+      {{/each}}
     </div>
 </div>
 

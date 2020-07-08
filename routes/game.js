@@ -72,8 +72,25 @@ async function getRandomQuestions(size, numPlayers) {
     });
 }
 
-router.get('/player', function(req, res) {
-    res.render('player_view');
+//Renders the players view for the game
+router.get('/player', async function(req, res) {
+    //TODO: Make the render concurrent with the game and player state for refresh handling
+    let renderParams = {};
+
+    let gameCode = req.cookies['game_code'];
+    let gameState = await game_helper.getGameState(gameCode);
+    if (gameState === 'active') {
+        renderParams.active = true;
+        let currQuestion = await game_helper.getCurrentQuestion(gameCode);
+        renderParams.options = currQuestion.options;
+        renderParams.questionNum = currQuestion.question_number;
+    } else {
+        renderParams.active = false;
+        renderParams.options = [];
+        renderParams.questionNum = 1;
+    }
+
+    res.render('player_view', renderParams);
 });
 
 //Renders the lobby with the players authenticated
