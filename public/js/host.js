@@ -84,36 +84,19 @@ $(document).ready(()=>{
         console.log(data.player_name + ' has answered');
     });
 
-    socket.on('answer result', (data)=> {
+    socket.on('answer-reveal', (data)=> {
+        console.log(data);
         // correct_answer <-- the index of the corrrect answer
-        var index = data.correct_answer;
-        if(data.result === true) {
-            //increment score
-            score = score + 1;
-            $("#score").text(score);
-            //change color of incorrect buttons
-            $(".btn").css("background-color", "#b91d34");
-            $(".btn").css("border-color", "#b91d34");
-            // change color of button that is correct
-            $("#option" + index).css("background-color", "#d4af37");
-            $("#option" + index).css("border-color", "#d4af37");
-            // display correct box
-            $("#result-box").css("background-color", "#1DB954");
-            $("#result-box").text("Congratulations!");
-            $("#res-dismiss").show();
-        } else {
-            //change color of incorrect buttons
-            $(".btn").css("background-color", "#b91d34");
-            $(".btn").css("border-color", "#b91d34");
-            // change color of button that is correct
-            $("#option" + index).css("background-color", "#d4af37");
-            $("#option" + index).css("border-color", "#d4af37");
-            // display incorrect box
-            $("#result-box").css("background-color", "#b91d34");
-            $("#result-box").text("Incorrect :(");
-            $("#res-dismiss").show();
-        }
-
+        var index = data.correct_answer;     
+        //change color of incorrect buttons
+        $(".host-option").css("background-color", "#b91d34");
+        $(".host-option").css("border-color", "#b91d34");
+        // change color of button that is correct
+        $("#option" + index).css("background-color", "#d4af37");
+        $("#option" + index).css("border-color", "#d4af37");
+        // display correct box
+        $("#res-dismiss").show();
+        
     });
 
     socket.on('game over', () => {

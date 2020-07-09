@@ -108,7 +108,9 @@ io.on("connection", (socket) => {
         let allAnswers = await game_helper.checkStatuses(data.game_code);
         if (allAnswers) {
             console.log('ALL PLAYERS ANSWERED');
-            io.to(data.room).emit('answer-reveal');
+            //Get correct answer
+            let correctAnswer = await game_helper.getQuestionAnswer(data.game_code);
+            io.to(data.game_code).emit('answer-reveal', {correct_answer: correctAnswer});
         }
     });
 

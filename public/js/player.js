@@ -1,5 +1,6 @@
 var socket = io();
 var playerChoice = -1;
+var questionNum = 1;
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -29,8 +30,15 @@ var answerSubmit = (event) => {
     //Set the global playerChoice to verify answer later
     playerChoice = index;
     //event.preventDefault();
+
     //Emit player-answer to the server
-    socket.emit('player-answer', {answer: index, game_code: game_code, player_name: player_name});
+    socket.emit('player-answer', {
+        answer: index,
+        game_code: game_code,
+        player_name: player_name,
+        question_number: questionNum
+    });
+
     //TODO: Change player screen to a confirmation message
     $('#player-options').empty();
     $('#answer-confirm').append(
@@ -58,6 +66,8 @@ $(document).ready(() => {
     socket.on('game-question', (data) => {
         //Change view to options
         console.log(data);
+        questionNum = data.question_number;
+
         $('#join-confirm').hide();
         $('#player-options').empty();
         $('#answer-confirm').empty();
@@ -75,6 +85,15 @@ $(document).ready(() => {
                     click: answerSubmit
                 }
             }).appendTo('#player-options');
+        }
+    });
+
+    socket.on('answer-reveal', (data) => {
+        console.log(data)
+        if (data.correct_answer === playerChoice) {
+            alert('Correct!');
+        } else {
+            alert('Incorrect');
         }
     });
 });

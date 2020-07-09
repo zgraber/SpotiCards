@@ -117,6 +117,23 @@ async function getGameState(game_code) {
     });
 }
 
+async function getQuestionAnswer(game_code) {
+    return new Promise(function (resolve, reject) {
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            game_code: game_code
+        }, async function (err, result) {
+            if (err) reject(err);
+
+            let active_question = result.active_question;
+            let answers = result.answers;
+            let correctAnswer = answers[active_question];
+            resolve(correctAnswer);
+        });
+    })
+}
+
 //Set one player's or all players' statuses
 async function setPlayerStatus(game_code, newStatus, player_name = undefined) {
     return new Promise(function (resolve, reject) {
@@ -249,3 +266,4 @@ exports.getGameState = getGameState;
 exports.getPlayerStatus = getPlayerStatus;
 exports.setPlayerStatus = setPlayerStatus;
 exports.checkStatuses = checkStatuses;
+exports.getQuestionAnswer = getQuestionAnswer;
