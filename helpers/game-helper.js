@@ -118,7 +118,7 @@ async function getGameState(game_code) {
 }
 
 //Set one player's or all players' statuses
-async function setPlayerStatus(game_code, newStatus, player_name = undefined, callback) {
+async function setPlayerStatus(game_code, newStatus, player_name = undefined) {
     return new Promise(function (resolve, reject) {
         var dbo = Connection.db.db('SpotiCards');
         var collection = dbo.collection('Games');
@@ -146,6 +146,21 @@ async function setPlayerStatus(game_code, newStatus, player_name = undefined, ca
             }, function(err, result) {
                 resolve();
             });
+        });
+    });
+}
+
+async function getPlayerStatus(game_code, player_name) {
+    return new Promise(function(resolve, reject){
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        collection.findOne({
+            game_code: game_code
+        }, function (err, result) {
+            if (err) reject(err);
+            
+            let indexOfPlayer = findWithAttr(result.players, 'player_name', player_name);
+            resolve(result.players[indexOfPlayer].status);
         });
     });
 }
@@ -231,5 +246,6 @@ exports.getPlayerNames = getPlayerNames;
 exports.getPlayerStats = getPlayerStats;
 exports.getCurrentQuestion = getCurrentQuestion;
 exports.getGameState = getGameState;
+exports.getPlayerStatus = getPlayerStatus;
 exports.setPlayerStatus = setPlayerStatus;
 exports.checkStatuses = checkStatuses;

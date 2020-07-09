@@ -32,6 +32,14 @@ var answerSubmit = (event) => {
     //Emit player-answer to the server
     socket.emit('player-answer', {answer: index, game_code: game_code, player_name: player_name});
     //TODO: Change player screen to a confirmation message
+    $('#player-options').empty();
+    $('#answer-confirm').append(
+        $('<div></div>', {class:"card"}).append(
+            $('<div></div>', {class:"card-body"}).append(
+                $('<h5></h5>', {class:"card-title", text:"You answered! But how certain are you?"})
+            )
+        )
+    );
 };
 
 $(document).ready(() => {
@@ -52,6 +60,7 @@ $(document).ready(() => {
         console.log(data);
         $('#join-confirm').hide();
         $('#player-options').empty();
+        $('#answer-confirm').empty();
         $('#question-num').empty();
         $('<span></span>', {
             text: 'Q'+ data.question_number,
