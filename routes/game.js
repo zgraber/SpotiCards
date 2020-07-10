@@ -97,7 +97,7 @@ router.get('/player', async function(req, res) {
     } else {
         renderParams.answered = false;
         renderParams.options = [];
-        renderParams.question_number = 1;
+        renderParams.questionNum = 1;
     }
 
     res.render('player_view', renderParams);

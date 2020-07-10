@@ -47,6 +47,25 @@ var answerSubmit = (event) => {
     socket.emit('answer submit', {answer: index, url_id: id});
 };
 
+function loadPlayerNames() {
+    let id = window.location.pathname.split('/')[2];
+    let url = window.location.origin + '/game/' + id + '/players';
+    $.ajax({
+        url: url,
+        success: (result) => {
+            if (result.player_names.length > 0) {
+                for (let i = 0; i < result.player_names.length; i++) {
+                    $('<li></li>', {
+                        id: ('player' + i),
+                        class: "list-group-item",
+                        text: result.player_names[i],
+                    }).appendTo('#player-list');
+                }
+            }
+        }
+    });
+}
+
 // Makes buttons unclickable
 var disableAnswers = () => {
     $("button").prop("disabled", true);
@@ -54,6 +73,7 @@ var disableAnswers = () => {
 
 $(document).ready(()=>{
     $("#res-dismiss").hide();
+    loadPlayerNames();
     getScore(function(result){
         score = result;
         $("#score").text(score);
