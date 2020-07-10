@@ -59,7 +59,7 @@ $(document).ready(() => {
         text: player_name,
     }).appendTo('#player-name');
 
-    socket.emit('join room', {
+    socket.emit('join-room', {
         player_name,
         game_code
     });

@@ -73,7 +73,7 @@ io.on("connection", (socket) => {
         console.log('Host view has joined lobby for ' + data.game_code);
     })
 
-    socket.on('join room', (data)=>{
+    socket.on('join-room', (data)=>{
         let room = data.game_code;
         socket.username = data.player_name;
         socket.room = room;
@@ -114,23 +114,26 @@ io.on("connection", (socket) => {
         }
     });
 
+    socket.on('end-question', async (data) => {
+        let gameCode = data.game_code;
+        //Reset player statuses
+        game_helper.setPlayerStatus(gameCode, 'answering');
+        //Increment to next question and return bool representing if game is continuing
+        let gameContinue = await game_helper.incrementQuestion(gameCode);
+        if (gameContinue) {
+            let questionData = await game_helper.getCurrentQuestion(gameCode);
+            io.to(gameCode).emit('game-question', questionData);
+        } else {
+            //TODO: Handle this case
+        }
+    })
+
     socket.on('disconnect', () => {
         let socketName = "Host";
         if(socket.username) {
             socketName = socket.username;
         }
         console.log(socketName + ' disconnected');
-    });
-    socket.on('answer submit', async (data) => {
-        let response = await game_helper.verifyAnswer(data.answer, data.url_id)
-        console.log("answer correct = " + response.result);
-        game_helper.incrementQuestion(data.url_id, (res) => {
-            if (res){
-                socket.emit('answer result', response);
-            } else {
-                socket.emit('game over');
-            }
-        });
     });
 });
 

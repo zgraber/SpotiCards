@@ -182,41 +182,43 @@ async function getPlayerStatus(game_code, player_name) {
     });
 }
 
-function incrementQuestion(url_id, callback) {
-    var dbo = Connection.db.db('SpotiCards');
-    var collection = dbo.collection('Games');
-    //Get how many questions there are
-    collection.findOne({
-        url_id: url_id
-    }, function (err, game) {
-        let num_questions = game.question_ids.length;
-        //If no more questions
-        if (game.active_question + 1 >= num_questions) {
+async function incrementQuestion(game_code) {
+    return new Promise((resolve, reject) => {
+        var dbo = Connection.db.db('SpotiCards');
+        var collection = dbo.collection('Games');
+        //Get how many questions there are
+        collection.findOne({
+            game_code: game_code
+        }, function (err, game) {
+            let num_questions = game.question_ids.length;
+            //If no more questions
+            if (game.active_question + 1 >= num_questions) {
+                collection.updateOne({
+                    game_code: game_code
+                }, {
+                    $set: {
+                        updated_at: new Date(Date.now()),
+                        game_state: 'finished'
+                    }
+                }, function (err, result) {
+                    if (err || result === null) reject (err);
+                    resolve(false);
+                });
+            }
+    
             collection.updateOne({
-                url_id: url_id
+                game_code: game_code
             }, {
                 $set: {
-                    updated_at: new Date(Date.now()),
-                    game_state: 'finished'
+                    updated_at: new Date(Date.now())
+                },
+                $inc: {
+                    active_question: 1
                 }
             }, function (err, result) {
                 if (err || result === null) throw (err);
-                callback(false);
+                resolve(true);
             });
-        }
-
-        collection.updateOne({
-            url_id: url_id
-        }, {
-            $set: {
-                updated_at: new Date(Date.now())
-            },
-            $inc: {
-                active_question: 1
-            }
-        }, function (err, result) {
-            if (err || result === null) throw (err);
-            callback(true);
         });
     });
 }

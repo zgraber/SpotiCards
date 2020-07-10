@@ -323,13 +323,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 16px;
+    font-size: large;
     font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
     /* end centering text part */
-    width: 50px;
-    height: 30px;
+    width: 100px;
+    height: 50px;
     cursor: pointer;
     border-radius: 25px;
-    background-color: #696969;
+    background-color: #1DB954;
     position: relative;
 }

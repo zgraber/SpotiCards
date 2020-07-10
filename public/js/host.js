@@ -1,30 +1,5 @@
 var socket = io();
-var score = 0;
 var gameCode = getParameterByName('game_code');
-
-var getQuestionInfo = () => {
-    url = window.location.href.split('?')[0] + 'question';
-    $.ajax({
-        url: url,
-        success: (result) => {
-            //Add jquery to clear result box
-            $("#result-box").text("")
-            $("#result-box").css("background-color", "");
-            $("#res-dismiss").hide();
-
-            $("#question-header").text("Question " + result.question_number);
-            $("#question-text").text(result.question_text);
-            $("#options").empty();
-            for (let i=0; i < result.options.length; i++) {
-                $('<h1></h1>', {
-                    id: ('option' + i),
-                    class: "btn btn-primary btn-options",
-                    text: result.options[i]
-                }).appendTo('#options');
-            }
-        }
-    });
-}
 
 var getScore =  (callback) => {
     url = window.location.href.split('?')[0] + '/score';
@@ -36,15 +11,6 @@ var getScore =  (callback) => {
             callback(result.score);
         }
     });
-};
-
-var answerSubmit = (event) => {
-    disableAnswers();
-    let index = $(".btn-options").index($(event.target));
-    event.preventDefault();
-    url = window.location.href;
-    var id = url.substring(url.lastIndexOf('/') + 1);
-    socket.emit('answer submit', {answer: index, url_id: id});
 };
 
 function loadPlayerNames() {
@@ -66,9 +32,9 @@ function loadPlayerNames() {
     });
 }
 
-// Makes buttons unclickable
-var disableAnswers = () => {
-    $("button").prop("disabled", true);
+function endQuestion() {
+    $("#res-dismiss").hide();
+    socket.emit('end-question', {game_code: gameCode});
 }
 
 $(document).ready(()=>{
@@ -81,8 +47,7 @@ $(document).ready(()=>{
     socket.emit('host-game-join', {game_code: gameCode});
     //getQuestionInfo();
     socket.on('game-question', (data) => {
-        $("#result-box").text("")
-        $("#result-box").css("background-color", "");
+        $('#player-list li').css('color', 'white');
         $("#res-dismiss").hide();
 
         $("#question-header").text("Question " + data.question_number);
@@ -93,15 +58,13 @@ $(document).ready(()=>{
                 id: ('option' + i),
                 class: "host-option",
                 text: data.options[i],
-                on: {
-                    click: answerSubmit
-                },
             }).appendTo('#options');
         }
     });
 
     socket.on('player-answer-confirm', (data) => {
         console.log(data.player_name + ' has answered');
+        $('.list-group-item:contains(' + data.player_name + ')').css('color', '#1DB954')
     });
 
     socket.on('answer-reveal', (data)=> {
