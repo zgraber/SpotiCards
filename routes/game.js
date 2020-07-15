@@ -150,16 +150,25 @@ router.get('/:id/lobby', function (req, res, next) {
 
 });
 
-router.get('/:id/score', function (req, res, next) {
+router.get('/:id/scores', function (req, res, next) {
     var dbo = Connection.db.db('SpotiCards');
     var collection = dbo.collection('Games');
     collection.findOne({
         url_id: req.params.id
     }, async function (err, result) {
         if (err || result === null) next(err);
-        res.json({
-            score: result.score
+        let players = result.players;
+        let scores = [];
+
+        players.forEach(function(player, index) {
+            scores.push({
+                name: player.player_name,
+                player_index: index,
+                score: player.player_score
+            });
         });
+
+        res.json(scores);
     });
 });
 

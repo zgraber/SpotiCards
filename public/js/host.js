@@ -1,14 +1,14 @@
 var socket = io();
 var gameCode = getParameterByName('game_code');
 
-var getScore =  (callback) => {
-    url = window.location.href.split('?')[0] + '/score';
+var getScores =  (callback) => {
+    url = window.location.href.split('?')[0] + 'scores';
     $.ajax({
         url: url,
         success: (result) => {
-            console.log("Score retrieved: ");
-            console.log(result.score);
-            callback(result.score);
+            console.log("Scores retrieved: ");
+            console.log(result);
+            callback(result);
         }
     });
 };
@@ -21,11 +21,17 @@ function loadPlayerNames() {
         success: (result) => {
             if (result.player_names.length > 0) {
                 for (let i = 0; i < result.player_names.length; i++) {
-                    $('<li></li>', {
-                        id: ('player' + i),
-                        class: "list-group-item",
-                        text: result.player_names[i],
-                    }).appendTo('#player-list');
+                    $('#player-list').append(
+                        $('<li></li>', {
+                            id: ('player' + i),
+                            class: "list-group-item",
+                            text: result.player_names[i],
+                        }).append(
+                            $('<span></span>', {
+                                class: 'player-score',
+                                text: 0
+                            })
+                    ));
                 }
             }
         }
@@ -40,9 +46,10 @@ function endQuestion() {
 $(document).ready(()=>{
     $("#res-dismiss").hide();
     loadPlayerNames();
-    getScore(function(result){
-        score = result;
-        $("#score").text(score);
+    getScores((result) => {
+        result.forEach(function(scoreObj) {
+            $('#player' + scoreObj.player_index).children('.player-score').first().text(scoreObj.score);
+        });
     });
     socket.emit('host-game-join', {game_code: gameCode});
     //getQuestionInfo();
@@ -78,6 +85,11 @@ $(document).ready(()=>{
         $("#option" + index).css("background-color", "#d4af37");
         $("#option" + index).css("border-color", "#d4af37");
         // display correct box
+        getScores((result) => {
+            result.forEach(function(scoreObj) {
+                $('#player' + scoreObj.player_index).children('.player-score').first().text(scoreObj.score);
+            });
+        });
         $("#res-dismiss").show();
         
     });

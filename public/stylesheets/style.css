@@ -296,6 +296,11 @@ body {
     color: white;
 }
 
+.player-score {
+    float: right;
+    display: inline-block;
+}
+
 #bottom-bar{
     bottom: 0;
 }
