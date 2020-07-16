@@ -373,6 +373,18 @@ router.get('/:id/game_over', async function (req, res) {
     let r = await collection.findOne({
         url_id: req.params.id
     });
+    let players = r.players;
+    let scores = [];
+
+    players.forEach(function(player, index) {
+        scores.push({
+            name: player.player_name,
+            player_index: index,
+            score: player.player_score
+        });
+    });
+
+
     if (r.game_state === 'created') {
         res.redirect('/game/' + req.params.id + '/lobby');
     } else if (r.game_state === 'finished') {

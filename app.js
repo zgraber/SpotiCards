@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
             let questionData = await game_helper.getCurrentQuestion(gameCode);
             io.to(gameCode).emit('game-question', questionData);
         } else {
-            //TODO: Handle this case
+            io.to(gameCode).emit('game-over');
         }
     })
 
