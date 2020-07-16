@@ -10,17 +10,29 @@
 
 <div class="player-game game">
 
-    {{#unless active}}
-    <div class="card" id="join-confirm">
-      <div class="card-body">
-        <h5 class="card-title">Join Confirmed. Your name should be on the screen.</h5>
+    <div id="join-confirm">
+      {{#unless game_active}}
+      <div class="card" id="join-confirm-card">
+        <div class="card-body">
+          <h5 class="card-title">Join Confirmed. Your name should be on the screen.</h5>
+        </div>
       </div>
+      {{/unless}}
     </div>
-    {{/unless}}
+
+    <div id="answer-confirm">
+      {{#if answered}}
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">You answered! But how certain are you?</h5>
+          </div>
+        </div>
+      {{/if}}
+    </div>
 
     <div id="player-options">
       {{#each options}}
-        <button id="option{{@index}}" class="btn btn-primary btn-lg btn-options">{{this}}</button>
+        <button id="option{{@index}}" class="btn btn-primary btn-lg btn-options" onclick="answerSubmit(event)">{{this}}</button>
       {{/each}}
     </div>
 </div>

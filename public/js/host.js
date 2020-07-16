@@ -1,68 +1,60 @@
 var socket = io();
-var score = 0;
 var gameCode = getParameterByName('game_code');
 
-var getQuestionInfo = () => {
-    url = window.location.href.split('?')[0] + 'question';
+var getScores =  (callback) => {
+    url = window.location.href.split('?')[0] + 'scores';
     $.ajax({
         url: url,
         success: (result) => {
-            //Add jquery to clear result box
-            $("#result-box").text("")
-            $("#result-box").css("background-color", "");
-            $("#res-dismiss").hide();
+            console.log("Scores retrieved: ");
+            console.log(result);
+            callback(result);
+        }
+    });
+};
 
-            $("#question-header").text("Question " + result.question_number);
-            $("#question-text").text(result.question_text);
-            $("#options").empty();
-            for (let i=0; i < result.options.length; i++) {
-                $('<h1></h1>', {
-                    id: ('option' + i),
-                    class: "btn btn-primary btn-options",
-                    text: result.options[i]
-                }).appendTo('#options');
+function loadPlayerNames() {
+    let id = window.location.pathname.split('/')[2];
+    let url = window.location.origin + '/game/' + id + '/players';
+    $.ajax({
+        url: url,
+        success: (result) => {
+            if (result.player_names.length > 0) {
+                for (let i = 0; i < result.player_names.length; i++) {
+                    $('#player-list').append(
+                        $('<li></li>', {
+                            id: ('player' + i),
+                            class: "list-group-item",
+                            text: result.player_names[i],
+                        }).append(
+                            $('<span></span>', {
+                                class: 'player-score',
+                                text: 0
+                            })
+                    ));
+                }
             }
         }
     });
 }
 
-var getScore =  (callback) => {
-    url = window.location.href.split('?')[0] + '/score';
-    $.ajax({
-        url: url,
-        success: (result) => {
-            console.log("Score retrieved: ");
-            console.log(result.score);
-            callback(result.score);
-        }
-    });
-};
-
-var answerSubmit = (event) => {
-    disableAnswers();
-    let index = $(".btn-options").index($(event.target));
-    event.preventDefault();
-    url = window.location.href;
-    var id = url.substring(url.lastIndexOf('/') + 1);
-    socket.emit('answer submit', {answer: index, url_id: id});
-};
-
-// Makes buttons unclickable
-var disableAnswers = () => {
-    $("button").prop("disabled", true);
+function endQuestion() {
+    $("#res-dismiss").hide();
+    socket.emit('end-question', {game_code: gameCode});
 }
 
 $(document).ready(()=>{
     $("#res-dismiss").hide();
-    getScore(function(result){
-        score = result;
-        $("#score").text(score);
+    loadPlayerNames();
+    getScores((result) => {
+        result.forEach(function(scoreObj) {
+            $('#player' + scoreObj.player_index).children('.player-score').first().text(scoreObj.score);
+        });
     });
     socket.emit('host-game-join', {game_code: gameCode});
     //getQuestionInfo();
     socket.on('game-question', (data) => {
-        $("#result-box").text("")
-        $("#result-box").css("background-color", "");
+        $('#player-list li').css('color', 'white');
         $("#res-dismiss").hide();
 
         $("#question-header").text("Question " + data.question_number);
@@ -73,42 +65,33 @@ $(document).ready(()=>{
                 id: ('option' + i),
                 class: "host-option",
                 text: data.options[i],
-                on: {
-                    click: answerSubmit
-                },
             }).appendTo('#options');
         }
     });
-    socket.on('answer result', (data)=> {
-        // correct_answer <-- the index of the corrrect answer
-        var index = data.correct_answer;
-        if(data.result === true) {
-            //increment score
-            score = score + 1;
-            $("#score").text(score);
-            //change color of incorrect buttons
-            $(".btn").css("background-color", "#b91d34");
-            $(".btn").css("border-color", "#b91d34");
-            // change color of button that is correct
-            $("#option" + index).css("background-color", "#d4af37");
-            $("#option" + index).css("border-color", "#d4af37");
-            // display correct box
-            $("#result-box").css("background-color", "#1DB954");
-            $("#result-box").text("Congratulations!");
-            $("#res-dismiss").show();
-        } else {
-            //change color of incorrect buttons
-            $(".btn").css("background-color", "#b91d34");
-            $(".btn").css("border-color", "#b91d34");
-            // change color of button that is correct
-            $("#option" + index).css("background-color", "#d4af37");
-            $("#option" + index).css("border-color", "#d4af37");
-            // display incorrect box
-            $("#result-box").css("background-color", "#b91d34");
-            $("#result-box").text("Incorrect :(");
-            $("#res-dismiss").show();
-        }
 
+    socket.on('player-answer-confirm', (data) => {
+        console.log(data.player_name + ' has answered');
+        $('.list-group-item:contains(' + data.player_name + ')').css('color', '#1DB954')
+    });
+
+    socket.on('answer-reveal', (data)=> {
+        console.log(data);
+        // correct_answer <-- the index of the corrrect answer
+        var index = data.correct_answer;     
+        //change color of incorrect buttons
+        $(".host-option").css("background-color", "#b91d34");
+        $(".host-option").css("border-color", "#b91d34");
+        // change color of button that is correct
+        $("#option" + index).css("background-color", "#d4af37");
+        $("#option" + index).css("border-color", "#d4af37");
+        // display correct box
+        getScores((result) => {
+            result.forEach(function(scoreObj) {
+                $('#player' + scoreObj.player_index).children('.player-score').first().text(scoreObj.score);
+            });
+        });
+        $("#res-dismiss").show();
+        
     });
 
     socket.on('game over', () => {

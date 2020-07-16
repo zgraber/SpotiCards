@@ -80,6 +80,8 @@ router.get('/callback', (req, res, next) => {
                     refresh_token: body.refresh_token,
                     expires_in: body.expires_in,
                     player_name: 'NO USERNAME',
+                    status: 'joined',
+                    player_score: 0,
                     stats: {}
                 };
 
@@ -99,7 +101,7 @@ router.get('/callback', (req, res, next) => {
 
                         var dbo = Connection.db.db('SpotiCards');
                         var collection = dbo.collection('Games');
-                        //TODO: If no cookie, throw an error
+
                         if (!req.cookies['game_code']) {
                            return next(new Error('There was a problem with your game code. Make sure you\'re joining from the join screen.'));
                         }

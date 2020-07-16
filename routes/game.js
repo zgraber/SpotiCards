@@ -77,15 +77,25 @@ router.get('/player', async function(req, res) {
     //TODO: Make the render concurrent with the game and player state for refresh handling
     let renderParams = {};
 
+    let playerName = req.cookies['player_name'];
     let gameCode = req.cookies['game_code'];
     let gameState = await game_helper.getGameState(gameCode);
+    let playerStatus = await game_helper.getPlayerStatus(gameCode, playerName);
+
+    renderParams.game_active = (gameState === 'active');
     if (gameState === 'active') {
-        renderParams.active = true;
         let currQuestion = await game_helper.getCurrentQuestion(gameCode);
-        renderParams.options = currQuestion.options;
-        renderParams.questionNum = currQuestion.question_number;
+        if (playerStatus === 'answering') {
+            renderParams.answered = false;
+            renderParams.options = currQuestion.options;
+            renderParams.questionNum = currQuestion.question_number;
+        } else if (playerStatus === 'answered'){
+            renderParams.answered = true;
+            renderParams.options = [];
+            renderParams.questionNum = currQuestion.question_number;
+        }
     } else {
-        renderParams.active = false;
+        renderParams.answered = false;
         renderParams.options = [];
         renderParams.questionNum = 1;
     }
@@ -140,16 +150,25 @@ router.get('/:id/lobby', function (req, res, next) {
 
 });
 
-router.get('/:id/score', function (req, res, next) {
+router.get('/:id/scores', function (req, res, next) {
     var dbo = Connection.db.db('SpotiCards');
     var collection = dbo.collection('Games');
     collection.findOne({
         url_id: req.params.id
     }, async function (err, result) {
         if (err || result === null) next(err);
-        res.json({
-            score: result.score
+        let players = result.players;
+        let scores = [];
+
+        players.forEach(function(player, index) {
+            scores.push({
+                name: player.player_name,
+                player_index: index,
+                score: player.player_score
+            });
         });
+
+        res.json(scores);
     });
 });
 

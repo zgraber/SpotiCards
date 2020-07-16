@@ -128,15 +128,34 @@ body {
     text-align: center;
 }
 
+#join-confirm-card {
+    text-align: center;  
+    width: 60%;
+}
+
 #join-confirm {
     top: 40%;
-    text-align: center;  
-    width: 80%;
+    position: relative;
+    left: auto;
 }
 
 #player-options {
     display: block;
     text-align: center;
+}
+
+#player-box {
+    position: absolute;
+    width: 300px;
+    top: 0px;
+    left: 0px;
+    background-color: #191414;
+    opacity: 0.90;
+    margin-top: 10px;
+    margin-left: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    display: inline-block;
 }
 
 .btn {
@@ -277,6 +296,11 @@ body {
     color: white;
 }
 
+.player-score {
+    float: right;
+    display: inline-block;
+}
+
 #bottom-bar{
     bottom: 0;
 }
@@ -304,13 +328,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 12.5px;
+    font-size: large;
     font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
     /* end centering text part */
-    width: 50px;
-    height: 30px;
+    width: 100px;
+    height: 50px;
     cursor: pointer;
     border-radius: 25px;
-    background-color: #696969;
+    background-color: #1DB954;
     position: relative;
 }
