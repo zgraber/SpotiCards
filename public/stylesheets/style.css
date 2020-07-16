@@ -2,6 +2,7 @@ body {
     font-family: "Circular Spotify Tx T Bold";
     width: auto;
     height: 100%;
+    overflow: hidden;
 }
 
 .game {
@@ -21,7 +22,12 @@ body {
 }
 
 .player-game {
-    height: 88vh;
+    flex:1; 
+    overflow-y: scroll;
+    top: 60px;
+    bottom: 60px;
+    height: auto !important;
+    min-height: calc(100vh - 120px);
 }
 
 .error {
@@ -31,6 +37,24 @@ body {
     height: 100vh;
     text-align: center;
     background-size: 400% 400%;
+}
+
+.card-player.card {
+    text-align: center;  
+    width: 300px;
+    top: 30%;
+    position: fixed;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;;
+}
+
+.image-center {
+    display: block;
+    padding-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @-webkit-keyframes gradientBG {
@@ -128,11 +152,6 @@ body {
     text-align: center;
 }
 
-#join-confirm-card {
-    text-align: center;  
-    width: 60%;
-}
-
 #join-confirm {
     top: 40%;
     position: relative;
@@ -156,6 +175,12 @@ body {
     padding: 10px;
     border-radius: 10px;
     display: inline-block;
+}
+
+#answer-result {
+    text-align: center;
+    position: relative;
+    top: 40%;
 }
 
 .btn {
@@ -194,11 +219,10 @@ body {
 .status-bar {
     padding: 10px;
     font-size: x-large;
-    height: 5vh;
+    height: 60px;
     width: 100%;
-
+    position: relative;
     white-space: nowrap;
-    display: inline-block;
 }
 
 .menu {
@@ -303,6 +327,8 @@ body {
 
 #bottom-bar{
     bottom: 0;
+    position: fixed;
+    
 }
 
 #result-box{

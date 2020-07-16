@@ -1,5 +1,5 @@
 <script src="/js/player.js"></script>
-<div class="status-bar">
+<div class="status-bar" style="top: 0;">
   <div id="bar-game-code">
 
   </div>
@@ -12,7 +12,7 @@
 
     <div id="join-confirm">
       {{#unless game_active}}
-      <div class="card" id="join-confirm-card">
+      <div class="card card-player" id="join-confirm-card">
         <div class="card-body">
           <h5 class="card-title">Join Confirmed. Your name should be on the screen.</h5>
         </div>
@@ -22,12 +22,16 @@
 
     <div id="answer-confirm">
       {{#if answered}}
-        <div class="card">
+        <div class="card card-player">
           <div class="card-body">
             <h5 class="card-title">You answered! But how certain are you?</h5>
           </div>
         </div>
       {{/if}}
+    </div>
+
+    <div id="answer-result">
+
     </div>
 
     <div id="player-options">
@@ -37,6 +41,6 @@
     </div>
 </div>
 
-<div class="status-bar" id="bottom-bar">
+<footer class="status-bar" id="bottom-bar">
   <div id="player-name"></div>
-</div>
+</footer>
