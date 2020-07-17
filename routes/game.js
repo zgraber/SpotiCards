@@ -87,15 +87,23 @@ router.get('/player', async function(req, res) {
         let currQuestion = await game_helper.getCurrentQuestion(gameCode);
         if (playerStatus === 'answering') {
             renderParams.answered = false;
+            renderParams.game_end = false;
             renderParams.options = currQuestion.options;
             renderParams.questionNum = currQuestion.question_number;
         } else if (playerStatus === 'answered'){
             renderParams.answered = true;
+            renderParams.game_end = false;
             renderParams.options = [];
             renderParams.questionNum = currQuestion.question_number;
         }
+    } else if (gameState === 'finished') {
+        renderParams.answered = false;
+        renderParams.game_end = true;
+        renderParams.options = [];
+        renderParams.questionNum = currQuestion.question_number;
     } else {
         renderParams.answered = false;
+        renderParams.game_end = false;
         renderParams.options = [];
         renderParams.questionNum = 1;
     }

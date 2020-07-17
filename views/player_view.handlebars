@@ -20,6 +20,16 @@
       {{/unless}}
     </div>
 
+    <div id="game-end">
+      {{#if game_end}}
+      <div class="card card-player" id="game-end-card">
+        <div class="card-body">
+          <h5 class="card-title">Game Over! Check the scoreboard to see how you did.</h5>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
     <div id="answer-confirm">
       {{#if answered}}
         <div class="card card-player">

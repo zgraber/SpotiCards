@@ -96,7 +96,7 @@ $(document).ready(()=>{
 
     socket.on('game-over', () => {
         url = window.location.href;
-        window.location.href = url + "/game_over";        
+        window.location.href = url + "/game_over";
     });
 });
 
