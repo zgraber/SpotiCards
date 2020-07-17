@@ -183,6 +183,10 @@ router.get('/:id', function (req, res, next) {
         }, function (err, result) {
             if (err) return next(err);
 
+            if(!result) {
+                return next(new Error('Cannot find game'));
+            }
+
             if (result.game_state === 'active') {
                 res.render("question");
                 //If the game hasn't been initialized, redirect to lobby

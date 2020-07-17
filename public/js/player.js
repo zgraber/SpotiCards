@@ -42,7 +42,7 @@ var answerSubmit = (event) => {
     //TODO: Change player screen to a confirmation message
     $('#player-options').empty();
     $('#answer-confirm').append(
-        $('<div></div>', {class:"card"}).append(
+        $('<div></div>', {class:"card card-player"}).append(
             $('<div></div>', {class:"card-body"}).append(
                 $('<h5></h5>', {class:"card-title", text:"You answered! But how certain are you?"})
             )
@@ -71,6 +71,7 @@ $(document).ready(() => {
         $('#join-confirm').hide();
         $('#player-options').empty();
         $('#answer-confirm').empty();
+        $('#answer-result').empty();
         $('#question-num').empty();
         $('<span></span>', {
             text: 'Q'+ data.question_number,
@@ -89,11 +90,43 @@ $(document).ready(() => {
     });
 
     socket.on('answer-reveal', (data) => {
+        $('#answer-confirm').empty();
+
         console.log(data)
         if (data.correct_answer === playerChoice) {
-            alert('Correct!');
+            //alert('Correct!');
+            $('#answer-result').append(
+                $('<div></div>', {class:"card-player card"}).append(
+                    $('<img></img>',{
+                        class: "card-img-top image-center",
+                        src: "/img/correct.png",
+                        alt: "Correct Answer Image",
+                        width: "200",
+                        height: "200"
+                    })
+                ).append(
+                    $('<div></div>', {class:"card-body"}).append(
+                        $('<h5></h5>', {class:"card-title", text:"Correct!"})
+                    )
+                )
+            );
         } else {
-            alert('Incorrect');
+            //alert('Incorrect');
+            $('#answer-result').append(
+                $('<div></div>', {class:"card-player card"}).append(
+                    $('<img></img>',{
+                        class: "card-img-top image-center",
+                        src: "/img/wrong.png",
+                        alt: "Incorrect Answer Image",
+                        width: "225",
+                        height: "200",
+                    })
+                ).append(
+                    $('<div></div>', {class:"card-body"}).append(
+                        $('<h5></h5>', {class:"card-title", text:"Wrong!"})
+                    )
+                )
+            );
         }
     });
 });
