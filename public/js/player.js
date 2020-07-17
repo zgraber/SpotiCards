@@ -129,4 +129,15 @@ $(document).ready(() => {
             );
         }
     });
+
+    socket.on('game-over', ()=>{
+        $('#answer-result').empty();
+        $("#game-end").append(
+            $('<div></div>', {class:"card card-player"}).append(
+                $('<div></div>', {class:"card-body"}).append(
+                    $('<h5></h5>', {class:"card-title", text:"Game Over! Check the scoreboard to see how you did."})
+                )
+            )
+        );
+    })
 });

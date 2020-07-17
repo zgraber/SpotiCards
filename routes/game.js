@@ -87,15 +87,23 @@ router.get('/player', async function(req, res) {
         let currQuestion = await game_helper.getCurrentQuestion(gameCode);
         if (playerStatus === 'answering') {
             renderParams.answered = false;
+            renderParams.game_end = false;
             renderParams.options = currQuestion.options;
             renderParams.questionNum = currQuestion.question_number;
         } else if (playerStatus === 'answered'){
             renderParams.answered = true;
+            renderParams.game_end = false;
             renderParams.options = [];
             renderParams.questionNum = currQuestion.question_number;
         }
+    } else if (gameState === 'finished') {
+        renderParams.answered = false;
+        renderParams.game_end = true;
+        renderParams.options = [];
+        renderParams.questionNum = currQuestion.question_number;
     } else {
         renderParams.answered = false;
+        renderParams.game_end = false;
         renderParams.options = [];
         renderParams.questionNum = 1;
     }
@@ -377,6 +385,18 @@ router.get('/:id/game_over', async function (req, res) {
     let r = await collection.findOne({
         url_id: req.params.id
     });
+    let players = r.players;
+    let scores = [];
+
+    players.forEach(function(player, index) {
+        scores.push({
+            name: player.player_name,
+            player_index: index,
+            score: player.player_score
+        });
+    });
+
+
     if (r.game_state === 'created') {
         res.redirect('/game/' + req.params.id + '/lobby');
     } else if (r.game_state === 'finished') {
