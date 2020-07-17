@@ -1,6 +1,12 @@
+<script src="/js/end.js"></script>
 <div class="game">
     <h1>Game Over!</h1>
-    <h2 id='score'>Score: {{score}}</h2>
+    <div class="card" id="scoreboard">
+        <div class="card-body">
+            <h5 class="card-title">Scoreboard:</h5>
+            <ul class="list-group list-group-flush" id="player-list"></ul>
+        </div>
+    </div>
     
     <form action="/">
         <input type="submit" value="Home" class="btn btn-primary"/>
