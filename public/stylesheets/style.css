@@ -1,5 +1,8 @@
 body {
     font-family: "Circular Spotify Tx T Bold";
+    width: auto;
+    height: 100%;
+    overflow: hidden;
 }
 
 .game {
@@ -18,6 +21,15 @@ body {
     animation: gradientBG 30s ease infinite;
 }
 
+.player-game {
+    flex:1; 
+    overflow-y: scroll;
+    top: 60px;
+    bottom: 60px;
+    height: auto !important;
+    min-height: calc(100vh - 120px);
+}
+
 .error {
     background-color: #191414;
     background: linear-gradient(122deg, #12f3b9, #bb2ac4, #0042ff);
@@ -25,6 +37,24 @@ body {
     height: 100vh;
     text-align: center;
     background-size: 400% 400%;
+}
+
+.card-player.card {
+    text-align: center;  
+    width: 300px;
+    top: 30%;
+    position: fixed;
+    right: 0;
+    left: 0;
+    margin-right: auto;
+    margin-left: auto;;
+}
+
+.image-center {
+    display: block;
+    padding-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 @-webkit-keyframes gradientBG {
@@ -88,6 +118,24 @@ body {
     font-family: proxima-nova, sans-serif;
 }
 
+#bar-game-code {
+    width: auto;
+    float: left;
+    display: inline-block;
+}
+
+#question-num {
+    float: right;
+    display: inline-block;
+    color: orange;
+}
+
+#question-header {
+    top: 10px;
+    margin-bottom: .7rem;
+    position: relative;
+}
+
 #game_code {
     text-transform: uppercase;
     text-align: center;
@@ -104,6 +152,37 @@ body {
     text-align: center;
 }
 
+#join-confirm {
+    top: 40%;
+    position: relative;
+    left: auto;
+}
+
+#player-options {
+    display: block;
+    text-align: center;
+}
+
+#player-box {
+    position: absolute;
+    width: 300px;
+    top: 0px;
+    left: 0px;
+    background-color: #191414;
+    opacity: 0.90;
+    margin-top: 10px;
+    margin-left: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+#answer-result {
+    text-align: center;
+    position: relative;
+    top: 40%;
+}
+
 .btn {
     position: relative;
     font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
@@ -113,6 +192,37 @@ body {
     background-color: #1DB954;
     border-color: #1DB954;
     display: inline-block;
+}
+
+.btn-options {
+    display: block;
+    margin: auto;
+    margin-bottom: 5px;
+    width: 80%
+}
+
+.host-option {
+    position: relative;
+    font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    top: 5px;
+    background-color: #1DB954;
+    border-color: #1DB954;
+    display: inline-block;
+    margin-top: 10px;
+    margin-left: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.status-bar {
+    padding: 10px;
+    font-size: x-large;
+    height: 60px;
+    width: 100%;
+    position: relative;
+    white-space: nowrap;
 }
 
 .menu {
@@ -176,13 +286,6 @@ body {
     display: inline-block;
 }
 
-
-.join-confirm {
-    top: 40%;
-    /* bring your own prefixes */
-    text-align: center;  
-}
-
 .card {
     background-color: #191414;
     color: whitesmoke;
@@ -217,6 +320,17 @@ body {
     color: white;
 }
 
+.player-score {
+    float: right;
+    display: inline-block;
+}
+
+#bottom-bar{
+    bottom: 0;
+    position: fixed;
+    
+}
+
 #result-box{
     margin: auto;
     margin-top: 5%;
@@ -240,13 +354,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 12.5px;
+    font-size: large;
     font-family: "Circular Spotify Tx T Bold", proxima-nova, sans-serif;
     /* end centering text part */
-    width: 50px;
-    height: 30px;
+    width: 100px;
+    height: 50px;
     cursor: pointer;
     border-radius: 25px;
-    background-color: #696969;
+    background-color: #1DB954;
     position: relative;
 }

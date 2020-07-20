@@ -7,7 +7,7 @@ $(document).ready(function(){
             success: (result) => {
                 if(result.found){
                     //console.log("GAME FOUND");
-                    window.location.href = window.location.origin + '/game/' + result.url_id + '/authorize';
+                    window.location.href = window.location.origin + '/authorize';
                 } else {
                    $("#game-missing").text("Game not found");
                 }

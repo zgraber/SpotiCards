@@ -63,7 +63,7 @@ $(document).ready(() => {
             success: (result) => {
                 if (result) {
                     console.log(result);
-                    window.location.replace(window.location.origin + '/game/' + id);
+                    window.location.replace(window.location.origin + '/game/' + id + '/?game_code=' + $('#game-code').text());
                     return false;
                 } else {
                     console.log("Uh oh. Something's up");
@@ -72,9 +72,10 @@ $(document).ready(() => {
         });
     });
     
-    socket.emit('register screen', {
+    socket.emit('host-lobby-join', {
         game_code: $('#game-code').text()
     });
+    
     socket.on('player join', (data) => {
         if ($("#no-players").is(":visible")) {
             $('#no-players').hide();

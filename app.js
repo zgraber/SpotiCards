@@ -64,35 +64,74 @@ app.use(function (err, req, res, next) {
 
 //SOCKET.IO
 io.on("connection", (socket) => {
-    let room;
-    console.log('User connected');
+    console.log('Connection Established');
 
-    socket.on('register screen', (data) => {
-        room = data.game_code;
+    socket.on('host-lobby-join', (data) => {
+        let room = data.game_code;
+        socket.room = room;
         socket.join(room);
-        console.log('Screen view has joined room ' + data.game_code);
+        console.log('Host view has joined lobby for ' + data.game_code);
     })
 
-    socket.on('join room', (data)=>{
-        room = data.game_code;
+    socket.on('join-room', (data)=>{
+        let room = data.game_code;
+        socket.username = data.player_name;
+        socket.room = room;
         socket.join(room);
         console.log(data.player_name + ' has joined room ' + data.game_code);
         io.to(room).emit('player join', {player_name: data.player_name});
     });
 
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
+    socket.on('host-game-join', async (data) => {
+        let room = data.game_code;
+        socket.room = room;
+        socket.join(room);
+        console.log('Host has joined game view for ' + room);
+        let questionData = await game_helper.getCurrentQuestion(room);
+
+        io.to(room).emit('game-question', questionData);
     });
-    socket.on('answer submit', async (data) => {
-        let response = await game_helper.verifyAnswer(data.answer, data.url_id)
-        console.log("answer correct = " + response.result);
-        game_helper.incrementQuestion(data.url_id, (res) => {
-            if (res){
-                socket.emit('answer result', response);
-            } else {
-                socket.emit('game over');
-            }
-        });
+
+    socket.on('player-answer', async (data) => {
+        //Acknowledge player has answered
+        console.log(data.player_name + ' answered!')
+        io.to(data.game_code).emit('player-answer-confirm',{player_name: data.player_name});
+
+        //Check if player's answer was correct
+        game_helper.checkAnswer(data.game_code, data.player_name, data.answer);
+
+        //If all players answered, reveal correct answer
+        await game_helper.setPlayerStatus(data.game_code, 'answered', data.player_name)
+
+        let allAnswers = await game_helper.checkStatuses(data.game_code);
+        if (allAnswers) {
+            console.log('ALL PLAYERS ANSWERED');
+            //Get correct answer
+            let correctAnswer = await game_helper.getQuestionAnswer(data.game_code);
+            io.to(data.game_code).emit('answer-reveal', {correct_answer: correctAnswer});
+        }
+    });
+
+    socket.on('end-question', async (data) => {
+        let gameCode = data.game_code;
+        //Reset player statuses
+        game_helper.setPlayerStatus(gameCode, 'answering');
+        //Increment to next question and return bool representing if game is continuing
+        let gameContinue = await game_helper.incrementQuestion(gameCode);
+        if (gameContinue) {
+            let questionData = await game_helper.getCurrentQuestion(gameCode);
+            io.to(gameCode).emit('game-question', questionData);
+        } else {
+            io.to(gameCode).emit('game-over');
+        }
+    })
+
+    socket.on('disconnect', () => {
+        let socketName = "Host";
+        if(socket.username) {
+            socketName = socket.username;
+        }
+        console.log(socketName + ' disconnected');
     });
 });
 

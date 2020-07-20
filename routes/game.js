@@ -72,10 +72,76 @@ async function getRandomQuestions(size, numPlayers) {
     });
 }
 
+//Renders the players view for the game
+router.get('/player', async function(req, res) {
+    let renderParams = {};
+
+    let playerName = req.cookies['player_name'];
+    let gameCode = req.cookies['game_code'];
+    let gameState = await game_helper.getGameState(gameCode);
+    let playerStatus = await game_helper.getPlayerStatus(gameCode, playerName);
+
+    renderParams.game_active = (gameState === 'active');
+    if (gameState === 'active') {
+        let currQuestion = await game_helper.getCurrentQuestion(gameCode);
+        if (playerStatus === 'answering') {
+            renderParams.answered = false;
+            renderParams.game_end = false;
+            renderParams.options = currQuestion.options;
+            renderParams.questionNum = currQuestion.question_number;
+        } else if (playerStatus === 'answered'){
+            renderParams.answered = true;
+            renderParams.game_end = false;
+            renderParams.options = [];
+            renderParams.questionNum = currQuestion.question_number;
+        }
+    } else if (gameState === 'finished') {
+        renderParams.answered = false;
+        renderParams.game_end = true;
+        renderParams.options = [];
+        renderParams.questionNum = currQuestion.question_number;
+    } else {
+        renderParams.answered = false;
+        renderParams.game_end = false;
+        renderParams.options = [];
+        renderParams.questionNum = 1;
+    }
+
+    res.render('player_view', renderParams);
+});
+
+//returns a player object based on game_code and player_name
+router.get('/getPlayerStatus', function (req, res, next) {
+    let game_code = req.query.game_code;
+    let playerName = req.query.player_name;
+
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        game_code: game_code
+    }, function (err, result) {
+        if (err) return next(err);
+        //console.log(result);
+        //If the game hasn't been initialized, redirect to lobby
+        if (result) {
+            let player = {};
+            for (var i = 0; i < result.players.length; i++) {
+                if (result.players[i].player_name === playerName) {
+                    player = result.players[i];
+                }
+            }
+            res.json({
+                player_status: player.status
+            });
+        } else {
+            res.json({});
+        }
+    });
+
+});
+
 //Renders the lobby with the players authenticated
 router.get('/:id/lobby', function (req, res, next) {
-    res.clearCookie('url_id');
-    res.cookie('url_id', req.params.id);
     let parms = {
         title: 'Lobby',
         active: {
@@ -121,15 +187,42 @@ router.get('/:id/lobby', function (req, res, next) {
 
 });
 
+router.get('/:id/scores', function (req, res, next) {
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        url_id: req.params.id
+    }, async function (err, result) {
+        if (err || result === null) next(err);
+        let players = result.players;
+        let scores = [];
+
+        players.forEach(function(player, index) {
+            scores.push({
+                name: player.player_name,
+                player_index: index,
+                score: player.player_score
+            });
+        });
+
+        res.json(scores);
+    });
+});
+
 //Renders the game question view
 router.get('/:id', function (req, res, next) {
     try {
         var dbo = Connection.db.db('SpotiCards');
         var collection = dbo.collection('Games');
+        console.log(req.params.id);
         collection.findOne({
             url_id: req.params.id
         }, function (err, result) {
             if (err) return next(err);
+
+            if(!result) {
+                return next(new Error('Cannot find game'));
+            }
 
             if (result.game_state === 'active') {
                 res.render("question");
@@ -149,12 +242,6 @@ router.get('/:id', function (req, res, next) {
     } catch (err) {
         return next(err);
     }
-});
-
-router.get('/:id/authorize', function (req, res) {
-    res.clearCookie('url_id');
-    res.cookie('url_id', req.params.id);
-    res.redirect('/authorize');
 });
 
 //Get player names
@@ -183,6 +270,8 @@ router.get('/:id/players', function (req, res, next) {
     });
 
 });
+
+
 
 //Creates a game and adds it to MongoDB
 router.post('/', async function (req, res, next) {
@@ -220,6 +309,7 @@ router.put('/:id/init', async function (req, res, next) {
     let r = await collection.findOne({
         url_id: req.params.id
     });
+    let gameCode = r.game_code;
 
     //If game has already been initialized
     if (r.game_state === 'active') {
@@ -253,6 +343,8 @@ router.put('/:id/init', async function (req, res, next) {
         }
     }, function (err, result) {
         if (err) return next(err);
+        //Change all player statuses to "answering"
+        game_helper.setPlayerStatus(gameCode, 'answering');
         console.log("Initialized Game " + req.params.id);
         //send back result to show game has been initialized
         res.json(result);
@@ -296,18 +388,7 @@ router.get('/:id/question', (req, res, next) => {
     });
 });
 
-router.get('/:id/score', function (req, res, next) {
-    var dbo = Connection.db.db('SpotiCards');
-    var collection = dbo.collection('Games');
-    collection.findOne({
-        url_id: req.params.id
-    }, async function (err, result) {
-        if (err || result === null) next(err);
-        res.json({
-            score: result.score
-        });
-    });
-});
+
 
 //Get game by Game code
 router.get('/', (req, res, next) => {
@@ -338,6 +419,18 @@ router.get('/:id/game_over', async function (req, res) {
     let r = await collection.findOne({
         url_id: req.params.id
     });
+    let players = r.players;
+    let scores = [];
+
+    players.forEach(function(player, index) {
+        scores.push({
+            name: player.player_name,
+            player_index: index,
+            score: player.player_score
+        });
+    });
+
+
     if (r.game_state === 'created') {
         res.redirect('/game/' + req.params.id + '/lobby');
     } else if (r.game_state === 'finished') {
