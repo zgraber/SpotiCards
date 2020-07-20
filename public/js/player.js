@@ -25,6 +25,17 @@ if (player_name === "" || game_code === "") {
     window.location.replace(window.location.origin);
 }
 
+function getPlayerStatus(callback) {
+    let url = window.location.origin + "/game/getPlayerStatus?game_code=" + game_code + '&player_name=' + player_name;
+    $.ajax({
+        url: url,
+        success: (result) => {
+            console.log(result);
+            callback(result.player_status);
+        }
+    });
+}
+
 var answerSubmit = (event) => {
     let index = $(".btn-options").index($(event.target));
     //Set the global playerChoice to verify answer later
@@ -42,9 +53,16 @@ var answerSubmit = (event) => {
     //TODO: Change player screen to a confirmation message
     $('#player-options').empty();
     $('#answer-confirm').append(
-        $('<div></div>', {class:"card card-player"}).append(
-            $('<div></div>', {class:"card-body"}).append(
-                $('<h5></h5>', {class:"card-title", text:"You answered! But how certain are you?"})
+        $('<div></div>', {
+            class: "card card-player"
+        }).append(
+            $('<div></div>', {
+                class: "card-body"
+            }).append(
+                $('<h5></h5>', {
+                    class: "card-title",
+                    text: "You answered! But how certain are you?"
+                })
             )
         )
     );
@@ -64,29 +82,35 @@ $(document).ready(() => {
         game_code
     });
     socket.on('game-question', (data) => {
-        //Change view to options
-        console.log(data);
-        questionNum = data.question_number;
+        getPlayerStatus(function (result) {
+            console.log(result);
+            if (result === 'answering') {
 
-        $('#join-confirm').hide();
-        $('#player-options').empty();
-        $('#answer-confirm').empty();
-        $('#answer-result').empty();
-        $('#question-num').empty();
-        $('<span></span>', {
-            text: 'Q'+ data.question_number,
-        }).appendTo('#question-num');
+                //Change view to options
+                console.log(data);
+                questionNum = data.question_number;
 
-        for (let i=0; i < data.options.length; i++) {
-            $('<button></button>', {
-                id: ('option' + i),
-                class: "btn btn-primary btn-lg btn-options",
-                text: data.options[i],
-                on: {
-                    click: answerSubmit
+                $('#join-confirm').hide();
+                $('#player-options').empty();
+                $('#answer-confirm').empty();
+                $('#answer-result').empty();
+                $('#question-num').empty();
+                $('<span></span>', {
+                    text: 'Q' + data.question_number,
+                }).appendTo('#question-num');
+
+                for (let i = 0; i < data.options.length; i++) {
+                    $('<button></button>', {
+                        id: ('option' + i),
+                        class: "btn btn-primary btn-lg btn-options",
+                        text: data.options[i],
+                        on: {
+                            click: answerSubmit
+                        }
+                    }).appendTo('#player-options');
                 }
-            }).appendTo('#player-options');
-        }
+            }
+        });
     });
 
     socket.on('answer-reveal', (data) => {
@@ -96,8 +120,10 @@ $(document).ready(() => {
         if (data.correct_answer === playerChoice) {
             //alert('Correct!');
             $('#answer-result').append(
-                $('<div></div>', {class:"card-player card"}).append(
-                    $('<img></img>',{
+                $('<div></div>', {
+                    class: "card-player card"
+                }).append(
+                    $('<img></img>', {
                         class: "card-img-top image-center",
                         src: "/img/correct.png",
                         alt: "Correct Answer Image",
@@ -105,16 +131,23 @@ $(document).ready(() => {
                         height: "200"
                     })
                 ).append(
-                    $('<div></div>', {class:"card-body"}).append(
-                        $('<h5></h5>', {class:"card-title", text:"Correct!"})
+                    $('<div></div>', {
+                        class: "card-body"
+                    }).append(
+                        $('<h5></h5>', {
+                            class: "card-title",
+                            text: "Correct!"
+                        })
                     )
                 )
             );
         } else {
             //alert('Incorrect');
             $('#answer-result').append(
-                $('<div></div>', {class:"card-player card"}).append(
-                    $('<img></img>',{
+                $('<div></div>', {
+                    class: "card-player card"
+                }).append(
+                    $('<img></img>', {
                         class: "card-img-top image-center",
                         src: "/img/wrong.png",
                         alt: "Incorrect Answer Image",
@@ -122,20 +155,32 @@ $(document).ready(() => {
                         height: "200",
                     })
                 ).append(
-                    $('<div></div>', {class:"card-body"}).append(
-                        $('<h5></h5>', {class:"card-title", text:"Wrong!"})
+                    $('<div></div>', {
+                        class: "card-body"
+                    }).append(
+                        $('<h5></h5>', {
+                            class: "card-title",
+                            text: "Wrong!"
+                        })
                     )
                 )
             );
         }
     });
 
-    socket.on('game-over', ()=>{
+    socket.on('game-over', () => {
         $('#answer-result').empty();
         $("#game-end").append(
-            $('<div></div>', {class:"card card-player"}).append(
-                $('<div></div>', {class:"card-body"}).append(
-                    $('<h5></h5>', {class:"card-title", text:"Game Over! Check the scoreboard to see how you did."})
+            $('<div></div>', {
+                class: "card card-player"
+            }).append(
+                $('<div></div>', {
+                    class: "card-body"
+                }).append(
+                    $('<h5></h5>', {
+                        class: "card-title",
+                        text: "Game Over! Check the scoreboard to see how you did."
+                    })
                 )
             )
         );

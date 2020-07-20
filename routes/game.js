@@ -74,7 +74,6 @@ async function getRandomQuestions(size, numPlayers) {
 
 //Renders the players view for the game
 router.get('/player', async function(req, res) {
-    //TODO: Make the render concurrent with the game and player state for refresh handling
     let renderParams = {};
 
     let playerName = req.cookies['player_name'];
@@ -109,6 +108,36 @@ router.get('/player', async function(req, res) {
     }
 
     res.render('player_view', renderParams);
+});
+
+//returns a player object based on game_code and player_name
+router.get('/getPlayerStatus', function (req, res, next) {
+    let game_code = req.query.game_code;
+    let playerName = req.query.player_name;
+
+    var dbo = Connection.db.db('SpotiCards');
+    var collection = dbo.collection('Games');
+    collection.findOne({
+        game_code: game_code
+    }, function (err, result) {
+        if (err) return next(err);
+        //console.log(result);
+        //If the game hasn't been initialized, redirect to lobby
+        if (result) {
+            let player = {};
+            for (var i = 0; i < result.players.length; i++) {
+                if (result.players[i].player_name === playerName) {
+                    player = result.players[i];
+                }
+            }
+            res.json({
+                player_status: player.status
+            });
+        } else {
+            res.json({});
+        }
+    });
+
 });
 
 //Renders the lobby with the players authenticated
@@ -242,6 +271,8 @@ router.get('/:id/players', function (req, res, next) {
 
 });
 
+
+
 //Creates a game and adds it to MongoDB
 router.post('/', async function (req, res, next) {
     var url_id = generateUrlId();
@@ -278,6 +309,7 @@ router.put('/:id/init', async function (req, res, next) {
     let r = await collection.findOne({
         url_id: req.params.id
     });
+    let gameCode = r.game_code;
 
     //If game has already been initialized
     if (r.game_state === 'active') {
@@ -311,6 +343,8 @@ router.put('/:id/init', async function (req, res, next) {
         }
     }, function (err, result) {
         if (err) return next(err);
+        //Change all player statuses to "answering"
+        game_helper.setPlayerStatus(gameCode, 'answering');
         console.log("Initialized Game " + req.params.id);
         //send back result to show game has been initialized
         res.json(result);

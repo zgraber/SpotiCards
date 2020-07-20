@@ -88,8 +88,6 @@ io.on("connection", (socket) => {
         socket.join(room);
         console.log('Host has joined game view for ' + room);
         let questionData = await game_helper.getCurrentQuestion(room);
-        //Change all player statuses to "answering"
-        game_helper.setPlayerStatus(room, 'answering');
 
         io.to(room).emit('game-question', questionData);
     });
