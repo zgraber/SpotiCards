@@ -14,7 +14,7 @@ function findWithAttr(array, attr, value) {
 
 //If players answer was correct, increment their score
 function checkAnswer(game_code, player_name, answer) {
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         game_code: game_code
@@ -47,7 +47,7 @@ function checkAnswer(game_code, player_name, answer) {
 //Returns true when all players have answered
 async function checkStatuses(game_code) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             game_code: game_code
@@ -67,7 +67,7 @@ async function checkStatuses(game_code) {
 
 async function getCurrentQuestion(game_code) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             game_code: game_code
@@ -105,7 +105,7 @@ async function getCurrentQuestion(game_code) {
 //Returns the state of the game
 async function getGameState(game_code) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             game_code: game_code
@@ -119,7 +119,7 @@ async function getGameState(game_code) {
 
 async function getQuestionAnswer(game_code) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             game_code: game_code
@@ -137,7 +137,7 @@ async function getQuestionAnswer(game_code) {
 //Set one player's or all players' statuses
 async function setPlayerStatus(game_code, newStatus, player_name = undefined) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             game_code: game_code
@@ -169,7 +169,7 @@ async function setPlayerStatus(game_code, newStatus, player_name = undefined) {
 
 async function getPlayerStatus(game_code, player_name) {
     return new Promise(function(resolve, reject){
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             game_code: game_code
@@ -184,7 +184,7 @@ async function getPlayerStatus(game_code, player_name) {
 
 async function incrementQuestion(game_code) {
     return new Promise((resolve, reject) => {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         //Get how many questions there are
         collection.findOne({
@@ -225,7 +225,7 @@ async function incrementQuestion(game_code) {
 
 async function getPlayerNames(url_id) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             url_id: url_id
@@ -245,7 +245,7 @@ async function getPlayerNames(url_id) {
 
 async function getPlayerStats(index, url_id) {
     return new Promise(function (resolve, reject) {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         collection.findOne({
             url_id: url_id

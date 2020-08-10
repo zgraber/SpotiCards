@@ -99,7 +99,7 @@ router.get('/callback', (req, res, next) => {
                     if (!error && response.statusCode === 200) {
                         player.player_name = body.display_name;
 
-                        var dbo = Connection.db.db('SpotiCards');
+                        var dbo = Connection.db.db('Habitune');
                         var collection = dbo.collection('Games');
 
                         if (!req.cookies['game_code']) {
