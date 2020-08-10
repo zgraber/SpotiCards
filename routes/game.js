@@ -34,7 +34,7 @@ function generateGameCode() {
 async function getRandomQuestions(size, numPlayers) {
     return new Promise(async function (resolve, reject) {
         try {
-            const dbo = Connection.db.db("SpotiCards");
+            const dbo = Connection.db.db("Habitune");
             let arr = [];
             let r = await dbo.collection("Questions").find({
                 players_req: {
@@ -115,7 +115,7 @@ router.get('/getPlayerStatus', function (req, res, next) {
     let game_code = req.query.game_code;
     let playerName = req.query.player_name;
 
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         game_code: game_code
@@ -151,7 +151,7 @@ router.get('/:id/lobby', function (req, res, next) {
         gameCode: ""
     };
 
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         url_id: req.params.id
@@ -188,7 +188,7 @@ router.get('/:id/lobby', function (req, res, next) {
 });
 
 router.get('/:id/scores', function (req, res, next) {
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         url_id: req.params.id
@@ -212,7 +212,7 @@ router.get('/:id/scores', function (req, res, next) {
 //Renders the game question view
 router.get('/:id', function (req, res, next) {
     try {
-        var dbo = Connection.db.db('SpotiCards');
+        var dbo = Connection.db.db('Habitune');
         var collection = dbo.collection('Games');
         console.log(req.params.id);
         collection.findOne({
@@ -246,7 +246,7 @@ router.get('/:id', function (req, res, next) {
 
 //Get player names
 router.get('/:id/players', function (req, res, next) {
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         url_id: req.params.id
@@ -290,7 +290,7 @@ router.post('/', async function (req, res, next) {
         players: []
     };
     try {
-        const dbo = Connection.db.db("SpotiCards");
+        const dbo = Connection.db.db("Habitune");
         let r = await dbo.collection("Games").insertOne(game);
         assert.equal(1, r.insertedCount);
         console.log("Game with code " + game_code + " added to db");
@@ -304,7 +304,7 @@ router.post('/', async function (req, res, next) {
 //Initializes the game with random questions and then calculates answers. Then redirects to game question view
 router.put('/:id/init', async function (req, res, next) {
     console.log("Initializing game " + req.params.id);
-    const dbo = Connection.db.db("SpotiCards");
+    const dbo = Connection.db.db("Habitune");
     var collection = dbo.collection('Games');
     let r = await collection.findOne({
         url_id: req.params.id
@@ -353,7 +353,7 @@ router.put('/:id/init', async function (req, res, next) {
 
 //Get JSON data for active question
 router.get('/:id/question', (req, res, next) => {
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         url_id: req.params.id
@@ -392,7 +392,7 @@ router.get('/:id/question', (req, res, next) => {
 
 //Get game by Game code
 router.get('/', (req, res, next) => {
-    var dbo = Connection.db.db('SpotiCards');
+    var dbo = Connection.db.db('Habitune');
     var collection = dbo.collection('Games');
     collection.findOne({
         game_code: req.query.code
@@ -414,7 +414,7 @@ router.get('/', (req, res, next) => {
 });
 
 router.get('/:id/game_over', async function (req, res) {
-    const dbo = Connection.db.db("SpotiCards");
+    const dbo = Connection.db.db("Habitune");
     var collection = dbo.collection('Games');
     let r = await collection.findOne({
         url_id: req.params.id

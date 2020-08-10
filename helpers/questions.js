@@ -4,7 +4,7 @@ var {Connection} = require('./mongo');
 
 async function getOptions(question_ids, url_id) {
     return new Promise(async function (resolve, reject) {
-        const dbo = Connection.db.db("SpotiCards");
+        const dbo = Connection.db.db("Habitune");
         let r = dbo.collection("Games").findOne({
             url_id: url_id
         });
@@ -66,7 +66,7 @@ async function getOptions(question_ids, url_id) {
 
 async function getAnswers(question_ids, options, url_id) {
     return new Promise(async function (resolve, reject) {
-        const dbo = Connection.db.db("SpotiCards");
+        const dbo = Connection.db.db("Habitune");
         let game = await dbo.collection("Games").findOne({
             url_id: url_id
         });
@@ -148,7 +148,7 @@ async function initPlayers(url_id, time_range) {
         try {
             var promises = [];
 
-            const dbo = Connection.db.db("SpotiCards");
+            const dbo = Connection.db.db("Habitune");
             let game = await dbo.collection("Games").findOne({
                 url_id: url_id
             });
@@ -191,7 +191,7 @@ async function setTopArtists(access_token, index, url_id, time_range) {
 
         set["players." + index + ".stats.top_artists"] = artistNames;
 
-        const dbo = Connection.db.db("SpotiCards");
+        const dbo = Connection.db.db("Habitune");
         dbo.collection("Games").updateOne({
             url_id: url_id
         }, {
@@ -246,7 +246,7 @@ async function setTopGenres(access_token, index, url_id, time_range) {
 
         set["players." + index + ".stats.top_genres"] = topFour;
 
-        const dbo = Connection.db.db("SpotiCards");
+        const dbo = Connection.db.db("Habitune");
         dbo.collection("Games").updateOne({
             url_id: url_id
         }, {
@@ -345,7 +345,7 @@ async function setTopFeats(access_token, index, url_id, time_range) {
         feat_set["players." + index + ".stats.popularity"] = avgPop;
 
         //connect to Mongodb and set feats for player
-        const dbo = Connection.db.db("SpotiCards");
+        const dbo = Connection.db.db("Habitune");
         dbo.collection("Games").updateOne({
             url_id: url_id
         }, {

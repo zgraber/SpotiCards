@@ -1,5 +1,5 @@
 {
-  "name": "spoticards",
+  "name": "Habitune",
   "version": "1.0.0",
   "description": "A Spotify party game where players guess each other's listening habits",
   "main": "app.js",
